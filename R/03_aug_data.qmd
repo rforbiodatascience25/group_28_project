@@ -1,0 +1,27 @@
+---
+title: "03_aug_data"
+format: html
+editor: visual
+output-file: results/03_aug_data.html
+---
+
+# Load libraries
+
+```{r}
+#| message: false
+library("tidyverse")
+```
+
+# Augment data
+
+## Load data
+
+```{r}
+
+```
+
+## Split data
+
+```{r}
+
+```
