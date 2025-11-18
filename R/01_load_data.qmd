@@ -37,6 +37,14 @@ data_table <- Table(GEO_data)
 
 ```{r}
 write.csv(data_table, file="../data/01_data_table_load.csv")
+
 disease_state_vector <- Columns(GEO_data)$disease.state
-write.csv(disease_state_vector, file="../data/01_disease_state_vector_load.csv")
+Label_vector <- Columns(GEO_data)$sample
+
+disease_df <- tibble(
+  disease.state = disease_state_vector,
+  Sample = Label_vector
+)
+
+write.csv(disease_df, file="../data/01_disease_state_vector_load.csv")
 ```

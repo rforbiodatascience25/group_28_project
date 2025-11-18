@@ -1,0 +1,35 @@
+---
+title: "03_aug_data"
+format: html
+editor: visual
+output-file: results/03_aug_data.html
+---
+
+# Load libraries
+
+```{r}
+#| message: false
+library("tidyverse")
+```
+
+# Augment data
+
+## Load data
+
+```{r}
+merged_data <- 
+```
+
+## Split data from disease.state
+
+Dataframe with all the diabetic (T2D) samples
+
+```{r}
+diabetic <- 
+```
+
+Dataframe with all the non-diabetic samples
+
+```{r}
+non_diabetic <- 
+```
