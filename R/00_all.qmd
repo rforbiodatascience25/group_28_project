@@ -14,9 +14,7 @@ dir.create("../results", showWarnings = FALSE)
 library(quarto)
 
 files <- c(
-  "01_download_data.qmd",
-  "02_preprocessing.qmd",
-  "03_analysis.qmd"
+  "01_load_data.qmd" # comma other files
 )
 
 for (f in files) {
