@@ -1,0 +1,52 @@
+---
+title: "02_clean_data"
+format: html
+editor: visual
+output-file: results/02_clean_data.html
+---
+
+# Load libraries
+
+```{r}
+#| message: false
+library("tidyverse")
+```
+
+# Clean Data
+
+## Load data
+
+```{r}
+meta_data <- read.csv("../data/01_data_table_load.csv", na = c("", "NA", "N/A"))
+disease_label <- read.csv("../data/01_disease_state_vector_load.csv")
+```
+
+## Select relevant columns and remove all NAs
+
+```{r}
+clean_data <- meta_data |>
+  select(-Gene.symbol, -Gene.ID, -UniGene.title, -UniGene.symbol, -UniGene.ID, 
+         -Nucleotide.Title, -GI, -GenBank.Accession, -Platform_CLONEID, - Platform_ORF,
+         -Platform_SPOTID, -Chromosome.location, -Chromosome.annotation, -X, -ID_REF) |>
+  drop_na()
+```
+
+```{r}
+disease_label <- disease_label |>
+  select(-X)
+```
+
+## Log2 transformation
+
+```{r}
+transformed_data <- clean_data |>
+  mutate(across(starts_with("GSM"), log2))
+```
+
+## Merge data
+
+The transformed data is merged with the disease_label data.
+
+```{r}
+
+```
