@@ -1,0 +1,29 @@
+---
+title: "Download_data"
+format: html
+---
+
+# Create local directories
+
+```{r}
+
+dir.create(file.path("..", "_raw"), recursive = TRUE)
+dir.create(file.path("..", "data"), recursive = TRUE)
+```
+
+# Download dataset
+
+```{r}
+input_url <- "https://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4337/soft/GDS4337_full.soft.gz"
+output_file <- "../_raw/full_dataset.soft.gz"
+curl::curl_download(url = input_url, destfile = output_file)
+```
+
+# Convert to table
+
+```{r}
+library("Biobase")
+library("GEOquery")
+GEO_data <- getGEO(filename="../_raw/full_dataset.soft.gz")
+data_table <- Table(GEO_data)
+```
