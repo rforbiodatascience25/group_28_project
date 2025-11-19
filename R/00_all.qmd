@@ -1,23 +1,24 @@
 ---
 title: "00_all"
 format: html
-editor: visual
+execute:
+  echo: true
 ---
 
-## 
+# Render All "/R" scripts
 
 ```{r}
-dir.create("../results", showWarnings = FALSE)
-```
+#| label: Run /R scripts
 
-```{r}
-library(quarto)
+# Import helper 
+source("99_proj_func.R")
 
-files <- c(
-  "01_load_data.qmd" # comma other files
+# Render files list.
+qmd_files <- c(       #Add files to list for rendering
+  "01_load_data.qmd"
 )
 
-for (f in files) {
-  quarto_render(f)
-}
+# Render files list
+lapply(qmd_files,render_scripts_to_results)
+
 ```

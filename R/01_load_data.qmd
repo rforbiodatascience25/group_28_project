@@ -1,16 +1,18 @@
 ---
 title: "01_load_data"
-format: html
+format: 
+  html:
+    embed-resources: true
 editor: visual
-output-file: results/01_load_data.html
 ---
 
 # Create local directories
 
 ```{r}
+# create local "_raw" and "data" directories if none exist.
+dir.create(file.path("..", "_raw"),  recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path("..", "data"),  recursive = TRUE, showWarnings = FALSE)
 
-dir.create(file.path("..", "_raw"), recursive = TRUE)
-dir.create(file.path("..", "data"), recursive = TRUE)
 ```
 
 # Download dataset
@@ -24,6 +26,7 @@ curl::curl_download(url = input_url, destfile = output_file)
 # Convert to table
 
 ```{r}
+library("BiocGenerics")
 library("Biobase")
 library("GEOquery")
 GEO_data <- getGEO(filename="../_raw/full_dataset.soft.gz")
