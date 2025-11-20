@@ -53,9 +53,11 @@ Some genes (IDENTIFIER) have been measured with multiple probes (ID_ref)
 aggregated_data <- transformed_data |>
   group_by(IDENTIFIER) |>
   mutate(probe_median = apply(across(starts_with("GSM")), 1, median)) |>
-  slice_max(probe_median, n = 1) |>  # Keep the best-expressed probe
+  slice_max(probe_median, n = 1, with_ties = FALSE) |>  # Keep the best-expressed probe
   select(-probe_median) |>
   ungroup()
+
+
 ```
 
 ## Merge data
