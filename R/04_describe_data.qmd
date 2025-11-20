@@ -27,8 +27,8 @@ T2D_data <- read.csv("../data/03_T2D_data.csv")
 none_T2D_data <- read.csv("../data/03_none_T2D_data.csv")
 
 # Overview
-T2D_data
-none_T2D_data
+head(T2D_data)
+head(none_T2D_data)
 ```
 
 ## Number of genes
@@ -43,7 +43,7 @@ genes_none_T2D
 
 ## Samples
 
-Counting the sample size for each group (diabetic and none-diabetic) based on the col names starting with "GSM".
+Counting the sample size for each group (diabetic and none-diabetic) based on the column names starting with "GSM".
 
 ```{r}
 samples_count_T2D <- T2D_data |>
@@ -74,13 +74,14 @@ The diabetic data set (T2D):
 samples_T2D <- T2D_data |>
   select(starts_with("GSM"))
 
+# Calculations
 gene_means_T2D <- rowMeans(samples_T2D, na.rm = TRUE)
 gene_medians_T2D <- apply(samples_T2D, 1, median, na.rm = TRUE)
 gene_sd_T2D <- apply(samples_T2D, 1, sd, na.rm = TRUE)
 
 ```
 
-The mean, median, and standard error for each gene are displayed below:
+The mean, median, and standard deviation for each gene are displayed below:
 
 ```{r}
 stats_T2D <- tibble(
@@ -90,6 +91,7 @@ stats_T2D <- tibble(
   sd = gene_sd_T2D
 )
 
+# Display statistics 
 stats_T2D
 ```
 
@@ -99,13 +101,14 @@ The control data set (none-diabetic):
 samples_none_T2D <- none_T2D_data |>
   select(starts_with("GSM"))
 
+# Calculations
 gene_means_none_T2D <- rowMeans(samples_none_T2D, na.rm = TRUE)
-gene_medians_none_T2D <- apply(samples_T2D, 1, median, na.rm = TRUE)
-gene_sd_none_T2D <- apply(samples_T2D, 1, sd, na.rm = TRUE)
+gene_medians_none_T2D <- apply(samples_none_T2D, 1, median, na.rm = TRUE)
+gene_sd_none_T2D <- apply(samples_none_T2D, 1, sd, na.rm = TRUE)
 
 ```
 
-The mean, median, and standard error for each gene are displayed below:
+The mean, median, and standard deviation for each gene are displayed below:
 
 ```{r}
 stats_none_T2D <- tibble(
@@ -115,12 +118,11 @@ stats_none_T2D <- tibble(
   sd = gene_sd_none_T2D
 )
 
+# Display statistics
 stats_none_T2D
 ```
 
-## Visualization of the mean gene expression
-
-A histogram for each group shows the mean gene expression of the raw data.
+## Visualization of the mean gene expression (histograms)
 
 Diabetic (T2D):
 
@@ -151,3 +153,9 @@ ggplot() +
     y = "Number of genes")
 
 ```
+
+## Conclusion
+
+Both data sets contain 14650 different genes but differ in sample size as there are 9 T2D samples and 54 control samples.
+
+The distribution of the mean gene expression is similar for both data sets with a some genes with a higher expression.
