@@ -43,6 +43,21 @@ transformed_data <- selected_data |>
   mutate(across(starts_with("GSM"), log2))
 ```
 
+## Remove duplicates
+
+Some genes (IDENTIFIER) have been measured with multiple probes (ID_ref)
+
+```{r}
+# Aggregate multiple probes on same gene: 
+# keep the probe with highest median expression for each gene
+aggregated_data <- transformed_data |>
+  group_by(IDENTIFIER) |>
+  mutate(probe_median = apply(across(starts_with("GSM")), 1, median)) |>
+  slice_max(probe_median, n = 1) |>  # Keep the best-expressed probe
+  select(-probe_median) |>
+  ungroup()
+```
+
 ## Merge data
 
 The transformed data is merged with the disease_label data. The label is merged by "Sample" and is added as the last row in the data set.
@@ -57,7 +72,7 @@ label_row <- disease_label |>
     IDENTIFIER = "disease.state") |> 
   select(IDENTIFIER, everything())
 
-data_as_characters <- transformed_data |> 
+data_as_characters <- aggregated_data |> 
   mutate(across(starts_with("GSM"), as.character))
 
 df_clean <- bind_rows(data_as_characters, label_row)
