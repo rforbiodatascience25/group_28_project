@@ -1,0 +1,148 @@
+---
+title: "04_describe_data"
+format: html
+editor: visual
+output-file: results/04_describe_data.html
+---
+
+# Load libraries
+
+```{r}
+#| message: false
+library("tidyverse")
+```
+
+# Describe data
+
+In this document, we will make some descriptive statistics of the two data sets.
+
+-   Rows = genes
+
+-   Cols = samples + metadata
+
+## Load data
+
+```{r}
+T2D_data <- read.csv("../data/03_T2D_data.csv")
+none_T2D_data <- read.csv("../data/03_none_T2D_data.csv")
+
+# Overview
+T2D_data
+none_T2D_data
+```
+
+## Number of genes
+
+```{r}
+genes_T2D <- nrow(T2D_data)
+genes_none_T2D <- nrow(none_T2D_data)
+
+genes_T2D
+genes_none_T2D
+```
+
+## Samples
+
+Counting the sample size for each group (diabetic and none-diabetic) based on the col names starting with "GSM".
+
+```{r}
+samples_count_T2D <- T2D_data |>
+  select(starts_with("GSM")) |>
+  ncol()
+
+samples_count_none_T2D <- none_T2D_data |>
+  select(starts_with("GSM")) |>
+  ncol()
+
+samples_count_T2D
+samples_count_none_T2D
+```
+
+There are in total 14650 genes in both data sets.
+
+There are 9 samples in the diabetic data set (T2D).
+
+There are 54 in the control data set (none-diabetic).
+
+## Statistics
+
+The basic statistics for group is calculated separately and displayed in a tibble.
+
+The diabetic data set (T2D):
+
+```{r}
+samples_T2D <- T2D_data |>
+  select(starts_with("GSM"))
+
+gene_means_T2D <- rowMeans(samples_T2D, na.rm = TRUE)
+gene_medians_T2D <- apply(samples_T2D, 1, median, na.rm = TRUE)
+gene_sd_T2D <- apply(samples_T2D, 1, sd, na.rm = TRUE)
+
+```
+
+The mean, median, and standard error for each gene are displayed below:
+
+```{r}
+stats_T2D <- tibble(
+  gene = T2D_data$IDENTIFIER,
+  mean = gene_means_T2D,
+  median = gene_medians_T2D,
+  sd = gene_sd_T2D
+)
+
+stats_T2D
+```
+
+The control data set (none-diabetic):
+
+```{r}
+samples_none_T2D <- none_T2D_data |>
+  select(starts_with("GSM"))
+
+gene_means_none_T2D <- rowMeans(samples_none_T2D, na.rm = TRUE)
+gene_medians_none_T2D <- apply(samples_T2D, 1, median, na.rm = TRUE)
+gene_sd_none_T2D <- apply(samples_T2D, 1, sd, na.rm = TRUE)
+
+```
+
+The mean, median, and standard error for each gene are displayed below:
+
+```{r}
+stats_none_T2D <- tibble(
+  gene = none_T2D_data$IDENTIFIER,
+  mean = gene_means_none_T2D,
+  median = gene_medians_none_T2D,
+  sd = gene_sd_none_T2D
+)
+
+stats_none_T2D
+```
+
+## Visualization of the distribution
+
+```{r}
+tibble(mean = gene_means_T2D) |>
+  ggplot(aes(x = mean)) +
+  geom_histogram(bins = 50, fill = "red", alpha = 0.6, color = "black") +
+  theme_minimal() +
+  labs(
+    title = "Histogram of mean gene expression (T2D)",
+    x = "Mean gene expression",
+    y = "Number of genes"
+  )
+
+
+```
+
+```{r}
+tibble(mean = gene_means_none_T2D) |>
+  ggplot(aes(x = mean)) +
+  geom_histogram(bins = 50, fill = "blue", alpha = 0.6, color = "black") +
+  theme_minimal() +
+  labs(
+    title = "Histogram of mean gene expression (None-diabetic)",
+    x = "Mean gene expression",
+    y = "Number of genes"
+  )
+
+```
