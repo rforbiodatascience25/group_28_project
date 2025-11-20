@@ -1,24 +1,56 @@
 ---
 title: "00_all"
 format: html
-execute:
-  echo: true
+editor: visual
 ---
 
-# Render All "/R" scripts
+```{r}
+#| label: setup
+#| include: false
+
+source("99_proj_func.R") # Import helper functions  
+```
+
+## Run & render specified "/R" scripts
 
 ```{r}
-#| label: Run /R scripts
+#| label: Run & render specified /R scripts
+#| include: false
 
-# Import helper 
-source("99_proj_func.R")
+# list of files to run/render in /R
+# Write the files in the list you want to render
 
-# Render files list.
-qmd_files <- c(       #Add files to list for rendering
-  "01_load_data.qmd"
+
+qmd_files <- c(                 
+  "100_test.qmd"
+  )
+
+#Run/render
+qmd_files |> 
+  lapply(render_qmd) |> 
+  invisible()
+```
+
+## Run & render ALL "/R" scripts
+
+```{r}
+#| label: Run & render ALL /R scripts
+#| include: false
+
+#list of files NOT to run (do not change).
+not_run_qmd_files <- c(
+  "00_all.qmd",
+  "99_proj_func.R"
 )
 
-# Render files list
-lapply(qmd_files,render_scripts_to_results)
+#list of files in /R for rendering
+all_qmd_files <- list.files(path = ".", full.names = FALSE) |> 
+  setdiff(not_run_qmd_files)
 
+#run and render
+all_qmd_files |> 
+  lapply(render_qmd) |> 
+  invisible()
 ```
+
+\
