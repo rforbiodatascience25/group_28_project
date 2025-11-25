@@ -95,7 +95,6 @@ write.csv(df_clean, file="../data/02_clean_data.csv")
 For some parts of the further analysis,
 
 ```{r}
-df_clean <- read.csv("../data/02_clean_data.csv")
 df_clean_selected <- df_clean |> 
   select(IDENTIFIER, starts_with("GSM"))
 
@@ -110,5 +109,5 @@ df_transposed_clean <- df_transposed |>
 Save transposed data as a csv file
 
 ```{r}
-write.csv(df_transposed_clean, file="../data/02_transposed_data.csv")
+write.table(df_transposed_clean, file="../data/02_transposed_data.csv")
 ```

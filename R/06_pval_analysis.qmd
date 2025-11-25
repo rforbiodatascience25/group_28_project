@@ -13,35 +13,30 @@ editor: visual
 ## Load libraries and data
 
 ```{r}
+#| label: setup
 #| message: false
 library("tidyverse")
 library("broom")
 ```
 
-## Load data and transform
+## Load data
+
+For this analysis we wish to load the transposed dataset created back in 02_clean_data.
 
 ```{r}
-fold_change_data <- read.csv("../data/02_clean_data.csv")
-
-fold_change_data_clean <- fold_change_data |>
-  select(IDENTIFIER, starts_with("GSM"))
-
-fold_change_data_transposed <- as.data.frame(t(fold_change_data_clean))
+#| label: load_data
+transposed_expression_data <- read.table("../data/02_transposed_data.csv")
 ```
 
-```{r}
-fold_change_data_transposed <- fold_change_data_transposed |>
-  rename_with(~ as.character(slice(fold_change_data_transposed, 1) |>
-  unlist())) |>
-  slice(-1)
-```
+# Calculating p-values and pivoting longer
 
-# Calculating p-values
+First and foremost we need to get our dataset into proper shape for our analysis and for easier calculation of p-values. We will be using methodology very alike to that seen in Lab 06.
 
-Before we can do any form of analysis, we first need to find our p-values for the expression values. We will be using purr for this.
+Step one is using pivot_longer to "fold out" our dataset into one long list and factorise it based on the disease state (either T2D or non-diabetic) as well as transforming
 
 ```{r}
-fold_change_data_long <- fold_change_data_transposed |>
+#| label: pivot_longer
+expression_data_long <- transposed_expression_data |>
   pivot_longer(
     cols = -starts_with("disease.state"),
     names_to = "gene",
@@ -54,14 +49,14 @@ fold_change_data_long <- fold_change_data_transposed |>
 Now that we pivoted the table to one long dataframe instead we can move on to the next step.
 
 ```{r}
-fold_change_data_nested <- fold_change_data_long |>
+expression_data_nested <- expression_data_long |>
   group_by(gene) |>
   nest() |>
   ungroup()
 ```
 
 ```{r}
-fold_change_data_nested_with_pvals <- fold_change_data_nested |>
+expression_data_nested_with_pvals <- expression_data_nested |>
   group_by(gene) |>
   mutate(model_object = map(.x = data,
                             .f = ~tidy(lm(formula = log_fold_change ~ disease.state,
@@ -72,7 +67,7 @@ fold_change_data_nested_with_pvals <- fold_change_data_nested |>
 ```
 
 ```{r}
-t2d_estimates <- fold_change_data_nested_with_pvals |>
+t2d_estimates <- expression_data_nested_with_pvals |>
   unnest(model_object)
 ```
 
@@ -97,7 +92,13 @@ t2d_estimates |>
 ```{r}
 t2d_estimates_selected <- t2d_estimates |>
   arrange(p.value) |>
-  slice_head(n = 30)
+  slice_head(n = 25)
+```
+
+```{r}
+t2d_estimates_selected |>
+  select(gene) |>
+  write.csv("../data/06_selected_genes_pvalue.csv")
 ```
 
 ```{r}
