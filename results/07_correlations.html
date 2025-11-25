@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>02_clean_data</title>
+<title>07_correlations</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3084,7 +3084,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">02_clean_data</h1>
+<h1 class="title">07_correlations</h1>
 </div>
 
 
@@ -3101,102 +3101,613 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="load-libraries" class="level1">
-<h1>Load libraries</h1>
+<section id="load-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="load-libraries">Load Libraries</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidyverse&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="clean-data" class="level1">
-<h1>Clean Data</h1>
 <section id="load-data" class="level2">
-<h2 class="anchored" data-anchor-id="load-data">Load data</h2>
+<h2 class="anchored" data-anchor-id="load-data">Load Data</h2>
+<p>Selected genes from the method using median and selected genes from the method using linear regression and the p-values.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>meta_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/01_data_table_load.csv&quot;</span>, <span class="at">na =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;NA&quot;</span>, <span class="st">&quot;N/A&quot;</span>))</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>disease_label <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/01_disease_state_vector_load.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>median_genes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/05_selected_genes_median.csv&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pval_genes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/06_selected_genes_pvalue.csv&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df_T2D <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/03_T2D_data.csv&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df_non_T2D <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/03_none_T2D_data.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="select-relevant-columns-and-remove-all-nas" class="level2">
-<h2 class="anchored" data-anchor-id="select-relevant-columns-and-remove-all-nas">Select relevant columns and remove all NAs</h2>
-<p>Meta data</p>
+<p>Using inner join two find the unique values within the two gene-data sets and save it as a vector</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>selected_data <span class="ot">&lt;-</span> meta_data <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Gene.symbol, <span class="sc">-</span>Gene.ID, <span class="sc">-</span>UniGene.title, <span class="sc">-</span>UniGene.symbol, <span class="sc">-</span>UniGene.ID, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>Nucleotide.Title, <span class="sc">-</span>GI, <span class="sc">-</span>GenBank.Accession, <span class="sc">-</span>Platform_CLONEID, <span class="sc">-</span> Platform_ORF,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>Platform_SPOTID, <span class="sc">-</span>Chromosome.location, <span class="sc">-</span>Chromosome.annotation, <span class="sc">-</span>X) <span class="sc">|&gt;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>median_genes <span class="ot">&lt;-</span> median_genes <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>X)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pval_genes <span class="ot">&lt;-</span> pval_genes <span class="sc">|&gt;</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>X)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>selected_genes <span class="ot">&lt;-</span> median_genes <span class="sc">|&gt;</span> </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(pval_genes, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;IDENTIFIER&quot;</span> <span class="ot">=</span> <span class="st">&quot;gene&quot;</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>selected_genes_vec <span class="ot">&lt;-</span> selected_genes <span class="sc">|&gt;</span> </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(IDENTIFIER)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Disease Label data</p>
+<p>Create heatmap of selected genes</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>disease_label <span class="ot">&lt;-</span> disease_label <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use df_T2D for correlation</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cor_data_top5 <span class="ot">&lt;-</span> df_T2D <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(IDENTIFIER <span class="sc">%in%</span> selected_genes_vec) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(IDENTIFIER, <span class="fu">starts_with</span>(<span class="st">&quot;GSM&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_to_rownames</span>(<span class="st">&quot;IDENTIFIER&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">&quot;pairwise.complete.obs&quot;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to tidy format using tidyverse (no melt)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>melted_cor_top5 <span class="ot">&lt;-</span> cor_data_top5 <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="st">&quot;Var1&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Var1, <span class="at">names_to =</span> <span class="st">&quot;Var2&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the heatmap (rest of your code stays the same)</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(melted_cor_top5, <span class="fu">aes</span>(Var1, Var2, <span class="at">fill =</span> value)) <span class="sc">+</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">high =</span> <span class="st">&quot;red&quot;</span>, <span class="at">mid =</span> <span class="st">&quot;white&quot;</span>, </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">name =</span> <span class="st">&quot;Correlation&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(value, <span class="dv">2</span>)), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Top 5 Diabetes-Related Genes: Co-expression Patterns&quot;</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>       <span class="co">#subtitle = paste(&quot;Red = higher in T2D (&quot;, </span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>       <span class="co">#                sum(top_5_plot_data$direction == &quot;Up in T2D&quot;), &quot; genes) | &quot;,</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>       <span class="co">#                &quot;Blue = lower in T2D (&quot;, </span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>       <span class="co">#                sum(top_5_plot_data$direction == &quot;Down in T2D&quot;), &quot; genes)&quot;,</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>       <span class="co">#                sep = &quot;&quot;),</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;&quot;</span>, <span class="at">y =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><svg id="svg_91bcc07525ef142ac298" role="img" width="672" height="360" viewBox="0 0 504 360">
+<defs>
+<filter id="svg_91bcc07525ef142ac298_filter-remove-color-and-invert-alpha" x="0%" y="0%" width="100%" height="100%">
+<feColorMatrix color-interpolation-filters="sRGB" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1 1"></feColorMatrix>
+</filter>
+<filter id="svg_91bcc07525ef142ac298_filter-0" x="0%" y="0%" width="100%" height="100%">
+<feImage xlink:href="#svg_91bcc07525ef142ac298_compositing-group-1" result="source" x="0" y="0" width="604.8" height="432"></feImage>
+<feImage xlink:href="#svg_91bcc07525ef142ac298_compositing-group-2" result="destination" x="0" y="0" width="604.8" height="432"></feImage>
+<feComposite in="source" in2="destination" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" color-interpolation-filters="sRGB"></feComposite>
+</filter>
+<g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-0">
+<path d="M 2.203125 -4.390625 L 2.203125 0 L 2.953125 0 L 2.953125 -6.171875 L 2.46875 -6.171875 C 2.203125 -5.21875 2.03125 -5.09375 0.875 -4.9375 L 0.875 -4.390625 Z M 2.203125 -4.390625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-1">
+<path d="M 2.421875 -2.65625 L 0.390625 -2.65625 L 0.390625 -2.046875 L 2.421875 -2.046875 Z M 2.421875 -2.65625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-2">
+<path d="M 2.34375 -6.171875 C 1.78125 -6.171875 1.265625 -5.90625 0.953125 -5.5 C 0.5625 -4.953125 0.359375 -4.125 0.359375 -2.984375 C 0.359375 -0.90625 1.046875 0.203125 2.34375 0.203125 C 3.625 0.203125 4.328125 -0.90625 4.328125 -2.9375 C 4.328125 -4.125 4.140625 -4.9375 3.734375 -5.5 C 3.421875 -5.921875 2.921875 -6.171875 2.34375 -6.171875 Z M 2.34375 -5.5 C 3.15625 -5.5 3.5625 -4.671875 3.5625 -3 C 3.5625 -1.25 3.171875 -0.421875 2.328125 -0.421875 C 1.53125 -0.421875 1.140625 -1.28125 1.140625 -2.984375 C 1.140625 -4.671875 1.53125 -5.5 2.34375 -5.5 Z M 2.34375 -5.5 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-3">
+<path d="M 1.625 -0.890625 L 0.75 -0.890625 L 0.75 0 L 1.625 0 Z M 1.625 -0.890625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-4">
+<path d="M 4.0625 -6.046875 L 0.9375 -6.046875 L 0.484375 -2.75 L 1.171875 -2.75 C 1.53125 -3.171875 1.8125 -3.3125 2.296875 -3.3125 C 3.109375 -3.3125 3.609375 -2.765625 3.609375 -1.875 C 3.609375 -1 3.109375 -0.46875 2.28125 -0.46875 C 1.625 -0.46875 1.234375 -0.796875 1.046875 -1.484375 L 0.296875 -1.484375 C 0.40625 -0.984375 0.484375 -0.75 0.671875 -0.53125 C 1 -0.0625 1.625 0.203125 2.296875 0.203125 C 3.53125 0.203125 4.375 -0.6875 4.375 -1.96875 C 4.375 -3.171875 3.578125 -3.984375 2.421875 -3.984375 C 2 -3.984375 1.65625 -3.875 1.3125 -3.625 L 1.546875 -5.3125 L 4.0625 -5.3125 Z M 4.0625 -6.046875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-5">
+<path d="M 2.796875 -1.5 L 2.796875 0 L 3.546875 0 L 3.546875 -1.5 L 4.4375 -1.5 L 4.4375 -2.171875 L 3.546875 -2.171875 L 3.546875 -6.171875 L 2.984375 -6.171875 L 0.234375 -2.28125 L 0.234375 -1.5 Z M 2.796875 -2.171875 L 0.890625 -2.171875 L 2.796875 -4.890625 Z M 2.796875 -2.171875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-6">
+<path d="M 4.25 -4.5625 C 4.109375 -5.578125 3.453125 -6.171875 2.53125 -6.171875 C 1.875 -6.171875 1.265625 -5.84375 0.90625 -5.296875 C 0.53125 -4.6875 0.359375 -3.9375 0.359375 -2.8125 C 0.359375 -1.78125 0.515625 -1.125 0.875 -0.578125 C 1.203125 -0.0625 1.734375 0.203125 2.390625 0.203125 C 3.546875 0.203125 4.375 -0.671875 4.375 -1.875 C 4.375 -3 3.609375 -3.8125 2.53125 -3.8125 C 1.921875 -3.8125 1.453125 -3.578125 1.140625 -3.125 C 1.140625 -4.65625 1.625 -5.5 2.484375 -5.5 C 3.015625 -5.5 3.375 -5.15625 3.5 -4.5625 Z M 2.4375 -3.140625 C 3.15625 -3.140625 3.609375 -2.625 3.609375 -1.8125 C 3.609375 -1.03125 3.09375 -0.46875 2.40625 -0.46875 C 1.703125 -0.46875 1.171875 -1.0625 1.171875 -1.84375 C 1.171875 -2.609375 1.6875 -3.140625 2.4375 -3.140625 Z M 2.4375 -3.140625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-7">
+<path d="M 0.453125 -1.40625 C 0.59375 -0.40625 1.25 0.203125 2.171875 0.203125 C 2.84375 0.203125 3.4375 -0.125 3.796875 -0.6875 C 4.171875 -1.28125 4.34375 -2.03125 4.34375 -3.15625 C 4.34375 -4.203125 4.1875 -4.859375 3.828125 -5.40625 C 3.5 -5.90625 2.96875 -6.171875 2.296875 -6.171875 C 1.15625 -6.171875 0.328125 -5.3125 0.328125 -4.109375 C 0.328125 -2.984375 1.09375 -2.171875 2.1875 -2.171875 C 2.75 -2.171875 3.1875 -2.375 3.5625 -2.84375 C 3.5625 -1.3125 3.078125 -0.46875 2.21875 -0.46875 C 1.6875 -0.46875 1.328125 -0.8125 1.203125 -1.40625 Z M 2.296875 -5.515625 C 3 -5.515625 3.53125 -4.921875 3.53125 -4.125 C 3.53125 -3.375 3.015625 -2.84375 2.265625 -2.84375 C 1.546875 -2.84375 1.09375 -3.359375 1.09375 -4.171875 C 1.09375 -4.953125 1.59375 -5.515625 2.296875 -5.515625 Z M 2.296875 -5.515625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-0-8">
+<path d="M 1.890625 -2.84375 L 2.296875 -2.84375 C 3.109375 -2.84375 3.546875 -2.453125 3.546875 -1.71875 C 3.546875 -0.9375 3.078125 -0.46875 2.296875 -0.46875 C 1.46875 -0.46875 1.078125 -0.890625 1.03125 -1.796875 L 0.265625 -1.796875 C 0.3125 -1.296875 0.390625 -0.96875 0.53125 -0.703125 C 0.859375 -0.109375 1.4375 0.203125 2.265625 0.203125 C 3.515625 0.203125 4.3125 -0.546875 4.3125 -1.71875 C 4.3125 -2.515625 4.015625 -2.9375 3.296875 -3.1875 C 3.859375 -3.421875 4.140625 -3.84375 4.140625 -4.46875 C 4.140625 -5.53125 3.453125 -6.171875 2.296875 -6.171875 C 1.078125 -6.171875 0.421875 -5.484375 0.40625 -4.1875 L 1.15625 -4.1875 C 1.15625 -4.5625 1.1875 -4.765625 1.28125 -4.953125 C 1.453125 -5.3125 1.828125 -5.515625 2.296875 -5.515625 C 2.96875 -5.515625 3.375 -5.109375 3.375 -4.4375 C 3.375 -4.015625 3.21875 -3.75 2.890625 -3.59375 C 2.671875 -3.515625 2.40625 -3.484375 1.890625 -3.46875 Z M 1.890625 -2.84375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-0">
+<path d="M 1.609375 -2.921875 L 5.109375 -2.921875 L 5.109375 -3.640625 L 1.609375 -3.640625 L 1.609375 -5.6875 L 5.234375 -5.6875 L 5.234375 -6.40625 L 0.796875 -6.40625 L 0.796875 0 L 5.390625 0 L 5.390625 -0.71875 L 1.609375 -0.71875 Z M 1.609375 -2.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-1">
+<path d="M 1.640625 -2.765625 L 3.75 -2.765625 C 4.484375 -2.765625 4.796875 -2.40625 4.796875 -1.625 L 4.796875 -1.046875 C 4.796875 -0.65625 4.859375 -0.265625 4.984375 0 L 5.96875 0 L 5.96875 -0.203125 C 5.671875 -0.40625 5.609375 -0.640625 5.59375 -1.5 C 5.578125 -2.546875 5.40625 -2.875 4.71875 -3.171875 C 5.4375 -3.53125 5.734375 -3.953125 5.734375 -4.703125 C 5.734375 -5.8125 5.046875 -6.40625 3.78125 -6.40625 L 0.8125 -6.40625 L 0.8125 0 L 1.640625 0 Z M 1.640625 -3.484375 L 1.640625 -5.6875 L 3.609375 -5.6875 C 4.078125 -5.6875 4.34375 -5.625 4.546875 -5.4375 C 4.765625 -5.265625 4.875 -4.96875 4.875 -4.59375 C 4.875 -3.828125 4.484375 -3.484375 3.609375 -3.484375 Z M 1.640625 -3.484375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-2">
+<path d="M 6.234375 -3.390625 L 3.5625 -3.390625 L 3.5625 -2.671875 L 5.515625 -2.671875 L 5.515625 -2.484375 C 5.515625 -1.34375 4.671875 -0.515625 3.5 -0.515625 C 2.84375 -0.515625 2.265625 -0.75 1.875 -1.171875 C 1.453125 -1.625 1.203125 -2.390625 1.203125 -3.1875 C 1.203125 -4.765625 2.109375 -5.796875 3.453125 -5.796875 C 4.4375 -5.796875 5.140625 -5.296875 5.3125 -4.46875 L 6.15625 -4.46875 C 5.921875 -5.765625 4.9375 -6.515625 3.46875 -6.515625 C 2.6875 -6.515625 2.046875 -6.3125 1.546875 -5.90625 C 0.796875 -5.28125 0.390625 -4.296875 0.390625 -3.140625 C 0.390625 -1.171875 1.59375 0.203125 3.328125 0.203125 C 4.203125 0.203125 4.875 -0.125 5.515625 -0.8125 L 5.71875 0.03125 L 6.234375 0.03125 Z M 6.234375 -3.390625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-3">
+<path d="M 1.515625 -6.40625 L 0.703125 -6.40625 L 0.703125 0 L 4.6875 0 L 4.6875 -0.71875 L 1.515625 -0.71875 Z M 1.515625 -6.40625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-4">
+<path d="M 4.171875 -1.921875 L 4.828125 0 L 5.75 0 L 3.5 -6.40625 L 2.4375 -6.40625 L 0.15625 0 L 1.015625 0 L 1.703125 -1.921875 Z M 3.9375 -2.609375 L 1.90625 -2.609375 L 2.953125 -5.53125 Z M 3.9375 -2.609375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-5">
+<path d="M 2.28125 -4.53125 L 2.28125 0 L 3.046875 0 L 3.046875 -6.359375 L 2.546875 -6.359375 C 2.265625 -5.390625 2.09375 -5.25 0.890625 -5.09375 L 0.890625 -4.53125 Z M 2.28125 -4.53125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-6">
+<path d="M 1.703125 -6.40625 L 0.875 -6.40625 L 0.875 0 L 1.703125 0 Z M 1.703125 -6.40625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-7">
+<path d="M 4.578125 -6.234375 L 0.40625 -6.234375 L 0.40625 -5.46875 L 3.78125 -5.46875 C 2.28125 -3.359375 1.6875 -2.046875 1.21875 0 L 2.046875 0 C 2.390625 -2 3.171875 -3.71875 4.578125 -5.59375 Z M 4.578125 -6.234375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-8">
+<path d="M 5.25 -4.53125 C 5.25 -4.96875 5.21875 -5.09375 5.078125 -5.390625 C 4.71875 -6.125 3.96875 -6.515625 2.890625 -6.515625 C 1.484375 -6.515625 0.609375 -5.796875 0.609375 -4.640625 C 0.609375 -3.859375 1.03125 -3.359375 1.875 -3.140625 L 3.46875 -2.71875 C 4.28125 -2.5 4.640625 -2.1875 4.640625 -1.6875 C 4.640625 -1.34375 4.453125 -0.984375 4.1875 -0.796875 C 3.9375 -0.609375 3.53125 -0.515625 3.015625 -0.515625 C 2.3125 -0.515625 1.84375 -0.6875 1.53125 -1.0625 C 1.296875 -1.34375 1.1875 -1.640625 1.203125 -2.046875 L 0.421875 -2.046875 C 0.4375 -1.453125 0.546875 -1.0625 0.796875 -0.71875 C 1.234375 -0.109375 1.984375 0.203125 2.953125 0.203125 C 3.71875 0.203125 4.34375 0.03125 4.765625 -0.296875 C 5.1875 -0.640625 5.46875 -1.203125 5.46875 -1.765625 C 5.46875 -2.546875 4.96875 -3.125 4.09375 -3.375 L 2.484375 -3.796875 C 1.71875 -4.015625 1.4375 -4.25 1.4375 -4.75 C 1.4375 -5.40625 2 -5.828125 2.875 -5.828125 C 3.890625 -5.828125 4.453125 -5.375 4.46875 -4.53125 Z M 5.25 -4.53125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-9">
+<path d="M 1.625 -2.71875 L 3.640625 -2.71875 C 4.140625 -2.71875 4.53125 -2.875 4.875 -3.171875 C 5.265625 -3.53125 5.421875 -3.9375 5.421875 -4.53125 C 5.421875 -5.734375 4.71875 -6.40625 3.453125 -6.40625 L 0.796875 -6.40625 L 0.796875 0 L 1.625 0 Z M 1.625 -3.4375 L 1.625 -5.6875 L 3.328125 -5.6875 C 4.109375 -5.6875 4.578125 -5.265625 4.578125 -4.5625 C 4.578125 -3.859375 4.109375 -3.4375 3.328125 -3.4375 Z M 1.625 -3.4375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-10">
+<path d="M 2.5 -2.75 L 0.40625 -2.75 L 0.40625 -2.109375 L 2.5 -2.109375 Z M 2.5 -2.75 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-11">
+<path d="M 1.6875 -0.921875 L 0.765625 -0.921875 L 0.765625 0 L 1.6875 0 Z M 1.6875 -0.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-12">
+<path d="M 2.421875 -6.359375 C 1.84375 -6.359375 1.3125 -6.09375 0.984375 -5.671875 C 0.578125 -5.109375 0.375 -4.25 0.375 -3.078125 C 0.375 -0.9375 1.078125 0.203125 2.421875 0.203125 C 3.734375 0.203125 4.453125 -0.9375 4.453125 -3.03125 C 4.453125 -4.25 4.265625 -5.078125 3.859375 -5.671875 C 3.53125 -6.109375 3.015625 -6.359375 2.421875 -6.359375 Z M 2.421875 -5.671875 C 3.25 -5.671875 3.671875 -4.828125 3.671875 -3.09375 C 3.671875 -1.28125 3.265625 -0.4375 2.40625 -0.4375 C 1.578125 -0.4375 1.171875 -1.3125 1.171875 -3.0625 C 1.171875 -4.828125 1.578125 -5.671875 2.421875 -5.671875 Z M 2.421875 -5.671875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-1-13">
+<path d="M 4.1875 -6.234375 L 0.96875 -6.234375 L 0.5 -2.84375 L 1.21875 -2.84375 C 1.578125 -3.265625 1.875 -3.421875 2.359375 -3.421875 C 3.203125 -3.421875 3.71875 -2.84375 3.71875 -1.921875 C 3.71875 -1.03125 3.203125 -0.484375 2.359375 -0.484375 C 1.6875 -0.484375 1.265625 -0.828125 1.078125 -1.53125 L 0.3125 -1.53125 C 0.40625 -1.015625 0.5 -0.78125 0.6875 -0.546875 C 1.03125 -0.078125 1.671875 0.203125 2.375 0.203125 C 3.640625 0.203125 4.515625 -0.71875 4.515625 -2.03125 C 4.515625 -3.265625 3.6875 -4.109375 2.5 -4.109375 C 2.0625 -4.109375 1.703125 -4 1.34375 -3.734375 L 1.59375 -5.46875 L 4.1875 -5.46875 Z M 4.1875 -6.234375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-0">
+<path d="M -0.921875 -3.203125 L 1.546875 -5.671875 L 1.03125 -6.1875 L -1.4375 -3.71875 L -2.875 -5.15625 L -0.3125 -7.71875 L -0.828125 -8.234375 L -3.96875 -5.09375 L 0.5625 -0.5625 L 3.8125 -3.8125 L 3.296875 -4.328125 L 0.625 -1.65625 Z M -0.921875 -3.203125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-1">
+<path d="M -0.796875 -3.109375 L 0.703125 -4.609375 C 1.21875 -5.125 1.6875 -5.09375 2.234375 -4.546875 L 2.65625 -4.125 C 2.921875 -3.859375 3.25 -3.625 3.53125 -3.53125 L 4.21875 -4.21875 L 4.078125 -4.359375 C 3.734375 -4.296875 3.515625 -4.421875 2.890625 -5.015625 C 2.140625 -5.734375 1.796875 -5.859375 1.09375 -5.59375 C 1.34375 -6.34375 1.265625 -6.859375 0.734375 -7.390625 C -0.046875 -8.171875 -0.96875 -8.09375 -1.859375 -7.203125 L -3.953125 -5.109375 L 0.578125 -0.578125 L 1.15625 -1.15625 Z M -1.3125 -3.625 L -2.859375 -5.171875 L -1.46875 -6.5625 C -1.125 -6.90625 -0.90625 -7.0625 -0.625 -7.0625 C -0.34375 -7.09375 -0.0625 -6.96875 0.203125 -6.703125 C 0.75 -6.15625 0.703125 -5.640625 0.078125 -5.015625 Z M -1.3125 -3.625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-2">
+<path d="M 2.015625 -6.796875 L 0.125 -4.90625 L 0.625 -4.40625 L 2.015625 -5.796875 L 2.15625 -5.65625 C 2.953125 -4.859375 2.9375 -3.65625 2.109375 -2.828125 C 1.65625 -2.375 1.078125 -2.140625 0.5 -2.15625 C -0.125 -2.1875 -0.84375 -2.53125 -1.40625 -3.09375 C -2.53125 -4.21875 -2.609375 -5.578125 -1.65625 -6.53125 C -0.953125 -7.234375 -0.109375 -7.390625 0.59375 -6.90625 L 1.203125 -7.515625 C 0.109375 -8.265625 -1.125 -8.09375 -2.15625 -7.0625 C -2.703125 -6.515625 -3.015625 -5.921875 -3.078125 -5.265625 C -3.171875 -4.296875 -2.75 -3.3125 -1.9375 -2.5 C -0.546875 -1.109375 1.265625 -0.984375 2.5 -2.21875 C 3.109375 -2.828125 3.359375 -3.546875 3.328125 -4.484375 L 4.0625 -4.03125 L 4.421875 -4.390625 Z M 2.015625 -6.796875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-3">
+<path d="M -3.453125 -5.609375 L -4.03125 -5.03125 L 0.5 -0.5 L 3.3125 -3.3125 L 2.796875 -3.828125 L 0.5625 -1.59375 Z M -3.453125 -5.609375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-4">
+<path d="M 1.59375 -4.3125 L 3.40625 -3.40625 L 4.0625 -4.0625 L -2.0625 -7 L -2.8125 -6.25 L 0.109375 -0.109375 L 0.71875 -0.71875 L -0.15625 -2.5625 Z M 0.9375 -4.625 L -0.5 -3.1875 L -1.8125 -6 Z M 0.9375 -4.625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-5">
+<path d="M -1.59375 -4.8125 L 1.609375 -1.609375 L 2.15625 -2.15625 L -2.34375 -6.65625 L -2.703125 -6.296875 C -2.203125 -5.421875 -2.234375 -5.203125 -2.984375 -4.234375 L -2.578125 -3.828125 Z M -1.59375 -4.8125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-6">
+<path d="M -3.328125 -5.734375 L -3.90625 -5.15625 L 0.625 -0.625 L 1.203125 -1.203125 Z M -3.328125 -5.734375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-7">
+<path d="M -1.171875 -7.640625 L -4.125 -4.6875 L -3.578125 -4.140625 L -1.1875 -6.53125 C -0.765625 -3.984375 -0.265625 -2.640625 0.859375 -0.859375 L 1.453125 -1.453125 C 0.265625 -3.109375 -0.375 -4.875 -0.71875 -7.1875 Z M -1.171875 -7.640625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-8">
+<path d="M 0.515625 -6.921875 C 0.203125 -7.234375 0.078125 -7.296875 -0.21875 -7.40625 C -0.984375 -7.671875 -1.796875 -7.421875 -2.5625 -6.65625 C -3.5625 -5.65625 -3.65625 -4.53125 -2.84375 -3.71875 C -2.296875 -3.171875 -1.640625 -3.109375 -0.890625 -3.546875 L 0.53125 -4.375 C 1.265625 -4.796875 1.734375 -4.828125 2.09375 -4.46875 C 2.328125 -4.234375 2.453125 -3.859375 2.40625 -3.53125 C 2.34375 -3.21875 2.140625 -2.859375 1.765625 -2.484375 C 1.28125 -2 0.8125 -1.78125 0.328125 -1.828125 C -0.03125 -1.875 -0.3125 -2 -0.609375 -2.296875 L -1.15625 -1.75 C -0.71875 -1.34375 -0.359375 -1.140625 0.046875 -1.078125 C 0.796875 -0.953125 1.546875 -1.265625 2.234375 -1.953125 C 2.765625 -2.484375 3.09375 -3.0625 3.171875 -3.578125 C 3.21875 -4.125 3.015625 -4.703125 2.609375 -5.109375 C 2.0625 -5.65625 1.3125 -5.71875 0.5 -5.28125 L -0.9375 -4.4375 C -1.625 -4.0625 -1.984375 -4.015625 -2.34375 -4.375 C -2.8125 -4.84375 -2.703125 -5.546875 -2.09375 -6.15625 C -1.375 -6.875 -0.640625 -6.953125 -0.046875 -6.359375 Z M 0.515625 -6.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-2-9">
+<path d="M -0.765625 -3.078125 L 0.65625 -4.5 C 1 -4.84375 1.171875 -5.234375 1.203125 -5.703125 C 1.21875 -6.21875 1.046875 -6.609375 0.625 -7.03125 C -0.234375 -7.890625 -1.1875 -7.875 -2.09375 -6.96875 L -3.96875 -5.09375 L 0.5625 -0.5625 L 1.15625 -1.15625 Z M -1.28125 -3.59375 L -2.859375 -5.171875 L -1.65625 -6.375 C -1.109375 -6.921875 -0.484375 -6.953125 0.015625 -6.453125 C 0.5 -5.96875 0.46875 -5.34375 -0.078125 -4.796875 Z M -1.28125 -3.59375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-0">
+<path d="M 7.28125 -5.53125 C 6.96875 -7.296875 5.953125 -8.15625 4.1875 -8.15625 C 3.109375 -8.15625 2.25 -7.8125 1.65625 -7.15625 C 0.921875 -6.359375 0.53125 -5.21875 0.53125 -3.921875 C 0.53125 -2.59375 0.9375 -1.46875 1.6875 -0.6875 C 2.3125 -0.046875 3.109375 0.25 4.140625 0.25 C 6.109375 0.25 7.203125 -0.796875 7.453125 -2.921875 L 6.390625 -2.921875 C 6.296875 -2.375 6.1875 -2 6.03125 -1.6875 C 5.703125 -1.015625 5.015625 -0.65625 4.15625 -0.65625 C 2.5625 -0.65625 1.546875 -1.921875 1.546875 -3.921875 C 1.546875 -5.984375 2.515625 -7.25 4.0625 -7.25 C 4.71875 -7.25 5.328125 -7.0625 5.65625 -6.75 C 5.953125 -6.46875 6.109375 -6.140625 6.234375 -5.53125 Z M 7.28125 -5.53125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-1">
+<path d="M 2.984375 -5.921875 C 1.359375 -5.921875 0.390625 -4.78125 0.390625 -2.84375 C 0.390625 -0.890625 1.359375 0.25 3 0.25 C 4.625 0.25 5.609375 -0.90625 5.609375 -2.796875 C 5.609375 -4.796875 4.65625 -5.921875 2.984375 -5.921875 Z M 3 -5.078125 C 4.03125 -5.078125 4.65625 -4.234375 4.65625 -2.8125 C 4.65625 -1.4375 4.015625 -0.59375 3 -0.59375 C 1.984375 -0.59375 1.359375 -1.4375 1.359375 -2.84375 C 1.359375 -4.234375 1.984375 -5.078125 3 -5.078125 Z M 3 -5.078125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-2">
+<path d="M 0.765625 -5.765625 L 0.765625 0 L 1.6875 0 L 1.6875 -2.984375 C 1.6875 -4.375 2.265625 -5 3.53125 -4.96875 L 3.53125 -5.890625 C 3.375 -5.921875 3.28125 -5.921875 3.171875 -5.921875 C 2.578125 -5.921875 2.140625 -5.578125 1.609375 -4.71875 L 1.609375 -5.765625 Z M 0.765625 -5.765625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-3">
+<path d="M 5.640625 -2.578125 C 5.640625 -3.453125 5.578125 -3.984375 5.40625 -4.40625 C 5.03125 -5.359375 4.15625 -5.921875 3.078125 -5.921875 C 1.46875 -5.921875 0.4375 -4.703125 0.4375 -2.8125 C 0.4375 -0.90625 1.4375 0.25 3.0625 0.25 C 4.375 0.25 5.296875 -0.5 5.515625 -1.75 L 4.59375 -1.75 C 4.34375 -0.984375 3.828125 -0.59375 3.09375 -0.59375 C 2.515625 -0.59375 2.015625 -0.859375 1.703125 -1.34375 C 1.484375 -1.671875 1.40625 -2 1.390625 -2.578125 Z M 1.421875 -3.328125 C 1.5 -4.390625 2.140625 -5.078125 3.0625 -5.078125 C 4 -5.078125 4.65625 -4.359375 4.65625 -3.328125 Z M 1.421875 -3.328125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-4">
+<path d="M 1.671875 -8.015625 L 0.75 -8.015625 L 0.75 0 L 1.671875 0 Z M 1.671875 -8.015625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-5">
+<path d="M 5.890625 -0.53125 C 5.78125 -0.515625 5.734375 -0.515625 5.6875 -0.515625 C 5.375 -0.515625 5.1875 -0.6875 5.1875 -0.96875 L 5.1875 -4.359375 C 5.1875 -5.375 4.4375 -5.921875 3.03125 -5.921875 C 2.171875 -5.921875 1.5 -5.6875 1.109375 -5.265625 C 0.84375 -4.96875 0.734375 -4.625 0.71875 -4.0625 L 1.640625 -4.0625 C 1.71875 -4.765625 2.140625 -5.078125 2.984375 -5.078125 C 3.828125 -5.078125 4.28125 -4.78125 4.28125 -4.21875 L 4.28125 -3.984375 C 4.265625 -3.59375 4.0625 -3.4375 3.328125 -3.34375 C 2.03125 -3.171875 1.828125 -3.140625 1.46875 -2.984375 C 0.796875 -2.703125 0.46875 -2.203125 0.46875 -1.453125 C 0.46875 -0.40625 1.1875 0.25 2.359375 0.25 C 3.078125 0.25 3.65625 0 4.3125 -0.59375 C 4.375 0 4.65625 0.25 5.265625 0.25 C 5.453125 0.25 5.578125 0.234375 5.890625 0.15625 Z M 4.28125 -1.8125 C 4.28125 -1.5 4.1875 -1.3125 3.921875 -1.0625 C 3.546875 -0.71875 3.09375 -0.546875 2.546875 -0.546875 C 1.84375 -0.546875 1.421875 -0.890625 1.421875 -1.46875 C 1.421875 -2.078125 1.8125 -2.390625 2.8125 -2.53125 C 3.78125 -2.65625 3.96875 -2.703125 4.28125 -2.84375 Z M 4.28125 -1.8125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-6">
+<path d="M 2.796875 -5.765625 L 1.84375 -5.765625 L 1.84375 -7.34375 L 0.9375 -7.34375 L 0.9375 -5.765625 L 0.15625 -5.765625 L 0.15625 -5.015625 L 0.9375 -5.015625 L 0.9375 -0.65625 C 0.9375 -0.0625 1.328125 0.25 2.046875 0.25 C 2.28125 0.25 2.484375 0.234375 2.796875 0.171875 L 2.796875 -0.59375 C 2.65625 -0.5625 2.546875 -0.546875 2.359375 -0.546875 C 1.953125 -0.546875 1.84375 -0.65625 1.84375 -1.0625 L 1.84375 -5.015625 L 2.796875 -5.015625 Z M 2.796875 -5.765625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-7">
+<path d="M 1.65625 -5.765625 L 0.734375 -5.765625 L 0.734375 0 L 1.65625 0 Z M 1.65625 -8.015625 L 0.71875 -8.015625 L 0.71875 -6.859375 L 1.65625 -6.859375 Z M 1.65625 -8.015625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-3-8">
+<path d="M 0.765625 -5.765625 L 0.765625 0 L 1.6875 0 L 1.6875 -3.171875 C 1.6875 -4.359375 2.3125 -5.125 3.25 -5.125 C 3.984375 -5.125 4.4375 -4.6875 4.4375 -4 L 4.4375 0 L 5.359375 0 L 5.359375 -4.359375 C 5.359375 -5.3125 4.640625 -5.921875 3.53125 -5.921875 C 2.671875 -5.921875 2.125 -5.59375 1.609375 -4.796875 L 1.609375 -5.765625 Z M 0.765625 -5.765625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-0">
+<path d="M 4.671875 -8.546875 L 7.828125 -8.546875 L 7.828125 -9.625 L 0.28125 -9.625 L 0.28125 -8.546875 L 3.453125 -8.546875 L 3.453125 0 L 4.671875 0 Z M 4.671875 -8.546875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-1">
+<path d="M 3.59375 -7.109375 C 1.640625 -7.109375 0.46875 -5.734375 0.46875 -3.40625 C 0.46875 -1.0625 1.640625 0.296875 3.609375 0.296875 C 5.5625 0.296875 6.734375 -1.078125 6.734375 -3.359375 C 6.734375 -5.75 5.59375 -7.109375 3.59375 -7.109375 Z M 3.609375 -6.09375 C 4.84375 -6.09375 5.578125 -5.078125 5.578125 -3.359375 C 5.578125 -1.734375 4.8125 -0.71875 3.609375 -0.71875 C 2.375 -0.71875 1.625 -1.734375 1.625 -3.40625 C 1.625 -5.078125 2.375 -6.09375 3.609375 -6.09375 Z M 3.609375 -6.09375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-2">
+<path d="M 0.71875 2.875 L 1.828125 2.875 L 1.828125 -0.71875 C 2.40625 -0.015625 3.046875 0.296875 3.953125 0.296875 C 5.75 0.296875 6.90625 -1.140625 6.90625 -3.34375 C 6.90625 -5.671875 5.765625 -7.109375 3.9375 -7.109375 C 3 -7.109375 2.25 -6.6875 1.734375 -5.875 L 1.734375 -6.921875 L 0.71875 -6.921875 Z M 3.75 -6.09375 C 4.96875 -6.09375 5.75 -5.015625 5.75 -3.359375 C 5.75 -1.796875 4.953125 -0.71875 3.75 -0.71875 C 2.578125 -0.71875 1.828125 -1.78125 1.828125 -3.40625 C 1.828125 -5.03125 2.578125 -6.09375 3.75 -6.09375 Z M 3.75 -6.09375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-3">
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-4">
+<path d="M 6.28125 -9.359375 L 1.453125 -9.359375 L 0.75 -4.265625 L 1.828125 -4.265625 C 2.359375 -4.90625 2.8125 -5.140625 3.546875 -5.140625 C 4.8125 -5.140625 5.578125 -4.28125 5.578125 -2.890625 C 5.578125 -1.546875 4.8125 -0.71875 3.53125 -0.71875 C 2.515625 -0.71875 1.90625 -1.234375 1.625 -2.296875 L 0.46875 -2.296875 C 0.625 -1.53125 0.75 -1.15625 1.03125 -0.8125 C 1.5625 -0.109375 2.515625 0.296875 3.5625 0.296875 C 5.453125 0.296875 6.765625 -1.0625 6.765625 -3.046875 C 6.765625 -4.890625 5.546875 -6.171875 3.75 -6.171875 C 3.09375 -6.171875 2.5625 -6 2.015625 -5.59375 L 2.390625 -8.21875 L 6.28125 -8.21875 Z M 6.28125 -9.359375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-5">
+<path d="M 1.171875 0 L 4.890625 0 C 7.3125 0 8.8125 -1.828125 8.8125 -4.8125 C 8.8125 -7.796875 7.328125 -9.625 4.890625 -9.625 L 1.171875 -9.625 Z M 2.40625 -1.078125 L 2.40625 -8.546875 L 4.671875 -8.546875 C 6.578125 -8.546875 7.578125 -7.265625 7.578125 -4.8125 C 7.578125 -2.359375 6.578125 -1.078125 4.671875 -1.078125 Z M 2.40625 -1.078125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-6">
+<path d="M 1.984375 -6.921875 L 0.890625 -6.921875 L 0.890625 0 L 1.984375 0 Z M 1.984375 -9.625 L 0.875 -9.625 L 0.875 -8.234375 L 1.984375 -8.234375 Z M 1.984375 -9.625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-7">
+<path d="M 7.0625 -0.640625 C 6.9375 -0.625 6.890625 -0.625 6.828125 -0.625 C 6.4375 -0.625 6.234375 -0.8125 6.234375 -1.15625 L 6.234375 -5.234375 C 6.234375 -6.453125 5.328125 -7.109375 3.625 -7.109375 C 2.609375 -7.109375 1.8125 -6.828125 1.328125 -6.3125 C 1.015625 -5.953125 0.890625 -5.5625 0.859375 -4.875 L 1.96875 -4.875 C 2.0625 -5.71875 2.5625 -6.09375 3.59375 -6.09375 C 4.59375 -6.09375 5.140625 -5.734375 5.140625 -5.0625 L 5.140625 -4.78125 C 5.125 -4.296875 4.890625 -4.125 3.984375 -4.015625 C 2.421875 -3.8125 2.1875 -3.765625 1.765625 -3.59375 C 0.96875 -3.25 0.546875 -2.640625 0.546875 -1.75 C 0.546875 -0.484375 1.421875 0.296875 2.828125 0.296875 C 3.703125 0.296875 4.390625 0 5.171875 -0.71875 C 5.25 0 5.59375 0.296875 6.3125 0.296875 C 6.546875 0.296875 6.6875 0.28125 7.0625 0.1875 Z M 5.140625 -2.171875 C 5.140625 -1.8125 5.03125 -1.578125 4.703125 -1.28125 C 4.25 -0.875 3.703125 -0.65625 3.0625 -0.65625 C 2.203125 -0.65625 1.703125 -1.0625 1.703125 -1.765625 C 1.703125 -2.5 2.171875 -2.859375 3.359375 -3.03125 C 4.546875 -3.1875 4.765625 -3.25 5.140625 -3.421875 Z M 5.140625 -2.171875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-8">
+<path d="M 0.71875 -9.625 L 0.71875 0 L 1.703125 0 L 1.703125 -0.890625 C 2.234375 -0.078125 2.9375 0.296875 3.890625 0.296875 C 5.71875 0.296875 6.90625 -1.1875 6.90625 -3.484375 C 6.90625 -5.734375 5.78125 -7.109375 3.953125 -7.109375 C 3 -7.109375 2.328125 -6.765625 1.8125 -5.984375 L 1.8125 -9.625 Z M 3.734375 -6.09375 C 4.96875 -6.09375 5.75 -5.015625 5.75 -3.359375 C 5.75 -1.796875 4.9375 -0.71875 3.734375 -0.71875 C 2.5625 -0.71875 1.8125 -1.78125 1.8125 -3.40625 C 1.8125 -5.03125 2.5625 -6.09375 3.734375 -6.09375 Z M 3.734375 -6.09375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-9">
+<path d="M 6.765625 -3.09375 C 6.765625 -4.140625 6.6875 -4.78125 6.5 -5.296875 C 6.046875 -6.4375 4.984375 -7.109375 3.703125 -7.109375 C 1.765625 -7.109375 0.53125 -5.65625 0.53125 -3.359375 C 0.53125 -1.078125 1.71875 0.296875 3.671875 0.296875 C 5.25 0.296875 6.34375 -0.59375 6.625 -2.09375 L 5.515625 -2.09375 C 5.21875 -1.1875 4.59375 -0.71875 3.703125 -0.71875 C 3.015625 -0.71875 2.421875 -1.03125 2.046875 -1.609375 C 1.78125 -2 1.6875 -2.40625 1.671875 -3.09375 Z M 1.703125 -3.984375 C 1.796875 -5.265625 2.578125 -6.09375 3.6875 -6.09375 C 4.8125 -6.09375 5.578125 -5.234375 5.578125 -3.984375 Z M 1.703125 -3.984375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-10">
+<path d="M 3.359375 -6.921875 L 2.21875 -6.921875 L 2.21875 -8.8125 L 1.125 -8.8125 L 1.125 -6.921875 L 0.1875 -6.921875 L 0.1875 -6.015625 L 1.125 -6.015625 L 1.125 -0.796875 C 1.125 -0.078125 1.59375 0.296875 2.453125 0.296875 C 2.75 0.296875 2.984375 0.28125 3.359375 0.21875 L 3.359375 -0.71875 C 3.1875 -0.671875 3.046875 -0.65625 2.828125 -0.65625 C 2.34375 -0.65625 2.21875 -0.796875 2.21875 -1.28125 L 2.21875 -6.015625 L 3.359375 -6.015625 Z M 3.359375 -6.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-11">
+<path d="M 5.78125 -4.984375 C 5.765625 -6.34375 4.875 -7.109375 3.28125 -7.109375 C 1.65625 -7.109375 0.625 -6.28125 0.625 -5 C 0.625 -3.921875 1.171875 -3.40625 2.8125 -3.015625 L 3.84375 -2.765625 C 4.609375 -2.578125 4.90625 -2.296875 4.90625 -1.8125 C 4.90625 -1.15625 4.265625 -0.71875 3.296875 -0.71875 C 2.703125 -0.71875 2.203125 -0.890625 1.921875 -1.171875 C 1.75 -1.375 1.671875 -1.578125 1.609375 -2.0625 L 0.453125 -2.0625 C 0.5 -0.46875 1.40625 0.296875 3.203125 0.296875 C 4.953125 0.296875 6.0625 -0.546875 6.0625 -1.890625 C 6.0625 -2.921875 5.484375 -3.484375 4.109375 -3.8125 L 3.046875 -4.0625 C 2.15625 -4.28125 1.765625 -4.5625 1.765625 -5.0625 C 1.765625 -5.703125 2.34375 -6.09375 3.234375 -6.09375 C 4.125 -6.09375 4.59375 -5.71875 4.625 -4.984375 Z M 5.78125 -4.984375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-12">
+<path d="M 3.75 -4.125 L 0.609375 -4.125 L 0.609375 -3.171875 L 3.75 -3.171875 Z M 3.75 -4.125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-13">
+<path d="M 2.453125 -4.140625 L 5.625 -4.140625 C 6.71875 -4.140625 7.203125 -3.625 7.203125 -2.421875 L 7.203125 -1.578125 C 7.203125 -0.984375 7.296875 -0.390625 7.46875 0 L 8.96875 0 L 8.96875 -0.296875 C 8.5 -0.625 8.40625 -0.96875 8.390625 -2.25 C 8.375 -3.828125 8.125 -4.296875 7.078125 -4.75 C 8.15625 -5.296875 8.59375 -5.9375 8.59375 -7.046875 C 8.59375 -8.71875 7.5625 -9.625 5.671875 -9.625 L 1.234375 -9.625 L 1.234375 0 L 2.453125 0 Z M 2.453125 -5.234375 L 2.453125 -8.546875 L 5.421875 -8.546875 C 6.109375 -8.546875 6.515625 -8.4375 6.8125 -8.171875 C 7.140625 -7.890625 7.3125 -7.453125 7.3125 -6.890625 C 7.3125 -5.75 6.734375 -5.234375 5.421875 -5.234375 Z M 2.453125 -5.234375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-14">
+<path d="M 2 -9.625 L 0.890625 -9.625 L 0.890625 0 L 2 0 Z M 2 -9.625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-15">
+<path d="M 6.53125 -9.625 L 5.4375 -9.625 L 5.4375 -6.046875 C 4.984375 -6.75 4.234375 -7.109375 3.3125 -7.109375 C 1.515625 -7.109375 0.34375 -5.671875 0.34375 -3.46875 C 0.34375 -1.140625 1.484375 0.296875 3.359375 0.296875 C 4.296875 0.296875 4.96875 -0.046875 5.5625 -0.90625 L 5.5625 0 L 6.53125 0 Z M 3.5 -6.09375 C 4.6875 -6.09375 5.4375 -5.046875 5.4375 -3.375 C 5.4375 -1.78125 4.671875 -0.71875 3.515625 -0.71875 C 2.296875 -0.71875 1.484375 -1.796875 1.484375 -3.40625 C 1.484375 -5.015625 2.296875 -6.09375 3.5 -6.09375 Z M 3.5 -6.09375 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-16">
+<path d="M 9.359375 -5.078125 L 5.34375 -5.078125 L 5.34375 -4 L 8.28125 -4 L 8.28125 -3.734375 C 8.28125 -2.015625 7.015625 -0.78125 5.25 -0.78125 C 4.28125 -0.78125 3.390625 -1.140625 2.828125 -1.75 C 2.1875 -2.4375 1.8125 -3.59375 1.8125 -4.78125 C 1.8125 -7.140625 3.15625 -8.703125 5.1875 -8.703125 C 6.65625 -8.703125 7.703125 -7.953125 7.96875 -6.703125 L 9.234375 -6.703125 C 8.890625 -8.65625 7.40625 -9.78125 5.203125 -9.78125 C 4.03125 -9.78125 3.078125 -9.484375 2.328125 -8.859375 C 1.203125 -7.9375 0.578125 -6.4375 0.578125 -4.71875 C 0.578125 -1.75 2.390625 0.296875 4.984375 0.296875 C 6.296875 0.296875 7.328125 -0.1875 8.28125 -1.234375 L 8.578125 0.046875 L 9.359375 0.046875 Z M 9.359375 -5.078125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-17">
+<path d="M 0.921875 -6.921875 L 0.921875 0 L 2.03125 0 L 2.03125 -3.8125 C 2.03125 -5.234375 2.765625 -6.15625 3.90625 -6.15625 C 4.78125 -6.15625 5.328125 -5.625 5.328125 -4.796875 L 5.328125 0 L 6.4375 0 L 6.4375 -5.234375 C 6.4375 -6.375 5.578125 -7.109375 4.234375 -7.109375 C 3.203125 -7.109375 2.546875 -6.71875 1.9375 -5.75 L 1.9375 -6.921875 Z M 0.921875 -6.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-18">
+<path d="M 2.828125 -1.375 L 1.453125 -1.375 L 1.453125 0 L 2.828125 0 Z M 2.828125 -6.921875 L 1.453125 -6.921875 L 1.453125 -5.546875 L 2.828125 -5.546875 Z M 2.828125 -6.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-19">
+<path d="M 8.734375 -6.640625 C 8.359375 -8.75 7.140625 -9.78125 5.03125 -9.78125 C 3.734375 -9.78125 2.6875 -9.375 1.984375 -8.578125 C 1.109375 -7.625 0.640625 -6.265625 0.640625 -4.703125 C 0.640625 -3.109375 1.125 -1.75 2.015625 -0.8125 C 2.765625 -0.046875 3.71875 0.296875 4.984375 0.296875 C 7.328125 0.296875 8.640625 -0.96875 8.9375 -3.515625 L 7.671875 -3.515625 C 7.5625 -2.859375 7.4375 -2.40625 7.234375 -2.015625 C 6.84375 -1.234375 6.015625 -0.78125 4.984375 -0.78125 C 3.078125 -0.78125 1.859375 -2.3125 1.859375 -4.71875 C 1.859375 -7.1875 3.015625 -8.703125 4.890625 -8.703125 C 5.671875 -8.703125 6.390625 -8.46875 6.78125 -8.09375 C 7.140625 -7.765625 7.34375 -7.375 7.484375 -6.640625 Z M 8.734375 -6.640625 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-20">
+<path d="M 3.859375 -3.578125 L 6.171875 -6.921875 L 4.9375 -6.921875 L 3.28125 -4.40625 L 1.609375 -6.921875 L 0.359375 -6.921875 L 2.671875 -3.53125 L 0.21875 0 L 1.484375 0 L 3.234375 -2.65625 L 4.96875 0 L 6.25 0 Z M 3.859375 -3.578125 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-21">
+<path d="M 0.90625 -6.921875 L 0.90625 0 L 2.015625 0 L 2.015625 -3.59375 C 2.03125 -5.25 2.71875 -6 4.234375 -5.953125 L 4.234375 -7.078125 C 4.046875 -7.109375 3.953125 -7.109375 3.8125 -7.109375 C 3.109375 -7.109375 2.5625 -6.6875 1.921875 -5.671875 L 1.921875 -6.921875 Z M 0.90625 -6.921875 " />
+</g>
+<g id="svg_91bcc07525ef142ac298_glyph-4-22">
+<path d="M 2.421875 -4.078125 L 5.453125 -4.078125 C 6.203125 -4.078125 6.796875 -4.296875 7.3125 -4.765625 C 7.890625 -5.296875 8.140625 -5.921875 8.140625 -6.796875 C 8.140625 -8.609375 7.078125 -9.625 5.171875 -9.625 L 1.203125 -9.625 L 1.203125 0 L 2.421875 0 Z M 2.421875 -5.15625 L 2.421875 -8.546875 L 4.984375 -8.546875 C 6.171875 -8.546875 6.859375 -7.90625 6.859375 -6.859375 C 6.859375 -5.796875 6.171875 -5.15625 4.984375 -5.15625 Z M 2.421875 -5.15625 " />
+</g>
+</g>
+<clipPath id="svg_91bcc07525ef142ac298_clip-0">
+<path clip-rule="nonzero" d="M 105.546875 260 L 382.890625 260 L 382.890625 262 L 105.546875 262 Z M 105.546875 260 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-1">
+<path clip-rule="nonzero" d="M 105.546875 194 L 382.890625 194 L 382.890625 196 L 105.546875 196 Z M 105.546875 194 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-2">
+<path clip-rule="nonzero" d="M 105.546875 128 L 382.890625 128 L 382.890625 130 L 105.546875 130 Z M 105.546875 128 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-3">
+<path clip-rule="nonzero" d="M 105.546875 62 L 382.890625 62 L 382.890625 64 L 105.546875 64 Z M 105.546875 62 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-4">
+<path clip-rule="nonzero" d="M 144 23.460938 L 146 23.460938 L 146 300.804688 L 144 300.804688 Z M 144 23.460938 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-5">
+<path clip-rule="nonzero" d="M 210 23.460938 L 212 23.460938 L 212 300.804688 L 210 300.804688 Z M 210 23.460938 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-6">
+<path clip-rule="nonzero" d="M 276 23.460938 L 278 23.460938 L 278 300.804688 L 276 300.804688 Z M 276 23.460938 " />
+</clipPath>
+<clipPath id="svg_91bcc07525ef142ac298_clip-7">
+<path clip-rule="nonzero" d="M 342 23.460938 L 344 23.460938 L 344 300.804688 L 342 300.804688 Z M 342 23.460938 " />
+</clipPath>
+<image id="svg_91bcc07525ef142ac298_source-94" x="0" y="0" width="75" height="367" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAFvCAIAAACNZqEpAAAABmJLR0QA/wD/AP+gvaeTAAAGGklEQVR4nO2dMW9cRRSFz7zdxCYEJCSICApINKZAoidJi4REaGjyF6ihSJkGiZ7fEaWGgj+QBihAFE4CEpZxguMkYCWO1zsUb+33pmLW2qfHfGeO0kR6q52Te+65987M24QYo9Boxl7A4OAznErS4aG2t3M/sb+v2Wy4Bf031ta0vp71ZNPo0iXFGOPWVszHtU9i0Jh/bt7MXerDhzHGEGPU1h+6/lnuP+HdTT19cuoArABvXtTFt7KePP+Kvv1+KkmK+vmHJb7j7KjZ+2hHj3aynnz9DS3yUEFnJgOuaSxMGy0YhsVfaOgYCs+QGsNJF8OgCTEPJxN1Kp2EMZcyECZBnUonSJWeMJTUEBmGJA/xKkXGsOnXQ2Ye9hkGokpD32mQMexUGgI0D5NqQVRpg6+HiZfyYwj3UmrFT7o2JEOzPIQzpOahk5fKgSFSpUm1MIghkaGBl3rN+HCVamE7NFjVQ/xsEaB5aKVSB4bwPBQ/hoHpNE4VP/BValEPkSp18lKoSpt+tYCrNEjEELakfJyG2ZeazRZwhngvFd5Lg4WXEoNo5qV8lTIZJjEccyVDodeX4uth3dUvFWZeilRpUvG5ZmpyQioLp0EylOr0VDisvBQaQ7edKHgMqXveyckMPoZML5XgXup0QiqHPOTHEJmHBl6avG9BZGhwc6/raRpd/TT3Y7/c0d6DwRaVgbc39M5G1pPzuboYvvt+7hf8/qse/3WKha0Mr13IXe3BM0khxqj9p7r1zbDLGgXr53T9CxMvFb6nqW/nFYs6WxQPp1194bs2UWPIV2lXD+sJaaFwmvFVu7ZCwfdSSU59KTcPicRSGN02ITKs1aJ8GNw2cbqr7+ClSIbyuk9DZ+iwi8E1UxeV1r60UJjd1WfGMOm84QyhKpWTSi0YElVqsBMV5LNfSt2n4avUrFoQY2jWl/JnfKTTGKhUstovxasUmYdO5/jY80P82ZNBtcBX/OT/e0LGMOna6H2pw/khUqV1v7R81IpfPgxO16R6Blw4+H2pWQz5fSnfaeB5SJ0P01vQSIb8ztvLS5lOYzYB8xkSVZr+XhuSoUT3Ugk+40ui56Gk9vfalsKyzw+BZRR3HMPsZcc4tp6DQv4/cjhmOJ8PtJwBEPPDoWayfAyLw1SSomJBMVwSixj+H+xj9TiZgCOVoaQuhkiV9ncxkDFsy5qJl0Jj2GJRLVTzsFxULy0ayZ43kmGU4DHsGOI7b2xf6qRSarWQVL20cPC9FN/TBLxKY58heHrCHlecgFwPY7KbyGaoaOA0BgyRKm2k6qVloyXlk4dwhtDZwkyl8Bmf2rXJS6VMhpJsKr7DbAH3UlHzkD891WpRPDqGEd151xm/ZFQvBcDIS4VWqYmXouvh8RslxDycJ/s0RIYGTuNVLeqMXyTquUX54DsN/36pVV+KjiF6JwrvNAlD+GwhdB5WLy0ZtWsrHy4nM+QYtiAzdMpD1WpRKNJ9GjhDtEo9+tJY1m99ZWPed5pXL+R+bP+xZgfDrCgPay9r/XzWk9OzUvube8//yf2MpDu3tXPvlItbCTYu673LWU++eKazLx2r9Kfvcr/gyYORbWlnU8//znoyNPrgo1alc/3246CrWiX2trW3nfXk2rkThvyKj66HPjFkM6S+UeJ020QReo4vySUP5ZCH/BjSnQaqUjnN+NFgxuc7jQFDokrNqgWzLzXKw1otSgXfS+U048vAS5kxlORyV9/jvSc8Q3DF95jxhY4huVo4OQ32fmn1Ugj4MfRwGvEZ4vdpokPFN5jx2SoVVKW9XQy+l+JViu28k55mzJUMheRXdpEqtbq5V720UCReymSYqHTMlQwFvpemfSmRodP9UoO382Kt+GXCoOLzGXrttSEZJm8FHRFVeuRV8fkxhHupoE7jND1FBy9FqjTp2gxiSGSY3C+lx5DqNF49DZJh0tPMiAxn/YoPZyhpdjTmUgbCUb9aHBIZtqQW1QLOMEov8AwPZiOvZggcdCqVPv8y92O3b+ne3WFWlIcPr+jK1awnQyO1DKdn9NXXuV+weV9/7p5ubavBx9d040bWk7u7UvurgoMuaHTwb7LzGf4Ln0Rta9uXiU8AAAAASUVORK5CYII="></image>
+<g id="svg_91bcc07525ef142ac298_compositing-group-0" transform="translate(50.4, 36)">
+<rect x="-50.4" y="-36" width="604.8" height="432" fill="rgb(0%, 0%, 0%)" fill-opacity="0" />
+<clipPath id="svg_91bcc07525ef142ac298_clip-8">
+<path clip-rule="nonzero" d="M 399 126 L 417 126 L 417 214 L 399 214 Z M 399 126 " />
+</clipPath>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-8)">
+<rect x="-50.4" y="-36" width="604.8" height="432" fill="rgb(100%, 100%, 100%)" fill-opacity="1" />
+</g>
+</g>
+<mask id="svg_91bcc07525ef142ac298_mask-0">
+<use xlink:href="#svg_91bcc07525ef142ac298_compositing-group-0" />
+</mask>
+<mask id="svg_91bcc07525ef142ac298_mask-1">
+<use xlink:href="#svg_91bcc07525ef142ac298_compositing-group-0" filter="url(#svg_91bcc07525ef142ac298_filter-remove-color-and-invert-alpha)" />
+</mask>
+<g id="svg_91bcc07525ef142ac298_compositing-group-1" mask="url(#svg_91bcc07525ef142ac298_mask-0)">
+<g transform="translate(50.4, 36)">
+<use xlink:href="#svg_91bcc07525ef142ac298_source-94" transform="matrix(0.24, 0, 0, 0.24, 399, 126)" />
+</g>
+</g>
+<g id="svg_91bcc07525ef142ac298_compositing-group-2" mask="url(#svg_91bcc07525ef142ac298_mask-1)">
+<g transform="translate(50.4, 36)">
+<rect x="-50.4" y="-36" width="604.8" height="432" fill="rgb(100%, 100%, 100%)" fill-opacity="1" />
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-0)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 105.546875 261.183594 L 382.890625 261.183594 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-1)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 105.546875 195.148438 L 382.890625 195.148438 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-2)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 105.546875 129.113281 L 382.890625 129.113281 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-3)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 105.546875 63.078125 L 382.890625 63.078125 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-4)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 145.167969 300.800781 L 145.167969 23.460938 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-5)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 211.199219 300.800781 L 211.199219 23.460938 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-6)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 277.234375 300.800781 L 277.234375 23.460938 " />
+</g>
+<g clip-path="url(#svg_91bcc07525ef142ac298_clip-7)">
+<path fill="none" stroke-width="1.066978" stroke-linecap="butt" stroke-linejoin="round" stroke="rgb(92.156863%, 92.156863%, 92.156863%)" stroke-opacity="1" stroke-miterlimit="10" d="M 343.269531 300.800781 L 343.269531 23.460938 " />
+</g>
+<path fill-rule="nonzero" fill="rgb(100%, 0%, 0%)" fill-opacity="1" d="M 112.148438 294.199219 L 178.183594 294.199219 L 178.183594 228.164062 L 112.148438 228.164062 Z M 112.148438 294.199219 " />
+<path fill-rule="nonzero" fill="rgb(67.45098%, 51.372549%, 100%)" fill-opacity="1" d="M 112.148438 228.164062 L 178.183594 228.164062 L 178.183594 162.128906 L 112.148438 162.128906 Z M 112.148438 228.164062 " />
+<path fill-rule="nonzero" fill="rgb(100%, 61.960784%, 50.588235%)" fill-opacity="1" d="M 112.148438 162.128906 L 178.183594 162.128906 L 178.183594 96.09375 L 112.148438 96.09375 Z M 112.148438 162.128906 " />
+<path fill-rule="nonzero" fill="rgb(54.901961%, 37.254902%, 100%)" fill-opacity="1" d="M 112.148438 96.097656 L 178.183594 96.097656 L 178.183594 30.0625 L 112.148438 30.0625 Z M 112.148438 96.097656 " />
+<path fill-rule="nonzero" fill="rgb(67.45098%, 51.372549%, 100%)" fill-opacity="1" d="M 178.183594 294.199219 L 244.21875 294.199219 L 244.21875 228.164062 L 178.183594 228.164062 Z M 178.183594 294.199219 " />
+<path fill-rule="nonzero" fill="rgb(100%, 0%, 0%)" fill-opacity="1" d="M 178.183594 228.164062 L 244.21875 228.164062 L 244.21875 162.128906 L 178.183594 162.128906 Z M 178.183594 228.164062 " />
+<path fill-rule="nonzero" fill="rgb(79.215686%, 67.058824%, 100%)" fill-opacity="1" d="M 178.183594 162.128906 L 244.21875 162.128906 L 244.21875 96.09375 L 178.183594 96.09375 Z M 178.183594 162.128906 " />
+<path fill-rule="nonzero" fill="rgb(100%, 46.27451%, 33.333333%)" fill-opacity="1" d="M 178.183594 96.097656 L 244.21875 96.097656 L 244.21875 30.0625 L 178.183594 30.0625 Z M 178.183594 96.097656 " />
+<path fill-rule="nonzero" fill="rgb(100%, 61.960784%, 50.588235%)" fill-opacity="1" d="M 244.21875 294.199219 L 310.253906 294.199219 L 310.253906 228.164062 L 244.21875 228.164062 Z M 244.21875 294.199219 " />
+<path fill-rule="nonzero" fill="rgb(79.215686%, 67.058824%, 100%)" fill-opacity="1" d="M 244.21875 228.164062 L 310.253906 228.164062 L 310.253906 162.128906 L 244.21875 162.128906 Z M 244.21875 228.164062 " />
+<path fill-rule="nonzero" fill="rgb(100%, 0%, 0%)" fill-opacity="1" d="M 244.21875 162.128906 L 310.253906 162.128906 L 310.253906 96.09375 L 244.21875 96.09375 Z M 244.21875 162.128906 " />
+<path fill-rule="nonzero" fill="rgb(72.941176%, 58.039216%, 100%)" fill-opacity="1" d="M 244.21875 96.097656 L 310.253906 96.097656 L 310.253906 30.0625 L 244.21875 30.0625 Z M 244.21875 96.097656 " />
+<path fill-rule="nonzero" fill="rgb(54.901961%, 37.254902%, 100%)" fill-opacity="1" d="M 310.25 294.199219 L 376.285156 294.199219 L 376.285156 228.164062 L 310.25 228.164062 Z M 310.25 294.199219 " />
+<path fill-rule="nonzero" fill="rgb(100%, 46.27451%, 33.333333%)" fill-opacity="1" d="M 310.25 228.164062 L 376.285156 228.164062 L 376.285156 162.128906 L 310.25 162.128906 Z M 310.25 228.164062 " />
+<path fill-rule="nonzero" fill="rgb(72.941176%, 58.039216%, 100%)" fill-opacity="1" d="M 310.25 162.128906 L 376.285156 162.128906 L 376.285156 96.09375 L 310.25 96.09375 Z M 310.25 162.128906 " />
+<path fill-rule="nonzero" fill="rgb(100%, 0%, 0%)" fill-opacity="1" d="M 310.25 96.097656 L 376.285156 96.097656 L 376.285156 30.0625 L 310.25 30.0625 Z M 310.25 96.097656 " />
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-0" x="142.796875" y="264.292969" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="135.441406" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="138.283837" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="143.029756" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-4" x="145.402716" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-5" x="150.148636" y="198.257812" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="139.234375" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="143.980295" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-4" x="146.353255" y="132.226562" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="135.441406" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="138.283837" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="143.029756" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="145.402716" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-7" x="150.148636" y="66.191406" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="201.472656" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="204.315087" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="209.061006" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-4" x="211.433966" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-5" x="216.179886" y="264.292969" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-0" x="208.828125" y="198.257812" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="201.472656" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="204.315087" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="209.061006" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-8" x="211.433966" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="216.179886" y="132.226562" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="202.894531" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="207.640451" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="210.013411" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-7" x="214.75933" y="66.191406" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="271.300781" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="276.046701" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-4" x="278.419661" y="264.292969" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="267.507812" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="270.350243" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="275.096162" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-8" x="277.469122" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="282.215042" y="198.257812" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-0" x="274.863281" y="132.226562" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="267.507812" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="270.350243" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="275.096162" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-5" x="277.469122" y="66.191406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="282.215042" y="66.191406" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="333.542969" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="336.385399" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="341.131319" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="343.504279" y="264.292969" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-7" x="348.250198" y="264.292969" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="334.964844" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="339.710763" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="342.083723" y="198.257812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-7" x="346.829643" y="198.257812" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-1" x="333.542969" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-2" x="336.385399" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-3" x="341.131319" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-5" x="343.504279" y="132.226562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-6" x="348.250198" y="132.226562" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-0-0" x="340.898438" y="66.191406" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-0" x="75.675781" y="264.390625" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-1" x="81.545381" y="264.390625" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-0" x="87.898981" y="264.390625" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-2" x="93.768581" y="264.390625" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-2" x="71.757812" y="198.355469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-3" x="78.604213" y="198.355469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-1" x="83.497013" y="198.355469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-4" x="89.850613" y="198.355469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-5" x="95.720213" y="198.355469" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-6" x="82.027344" y="132.320312" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-3" x="84.473744" y="132.320312" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-7" x="89.366544" y="132.320312" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-1" x="94.259344" y="132.320312" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-1" x="58.558594" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-4" x="64.912194" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-8" x="70.781794" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-2" x="76.651394" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-1" x="83.497794" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-9" x="89.851394" y="66.289062" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-5" x="95.720994" y="66.289062" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-0" x="132.070312" y="327.902344" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-1" x="136.220746" y="323.75191" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-0" x="140.71342" y="319.259236" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-2" x="144.863854" y="315.108802" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-2" x="195.335937" y="330.671875" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-3" x="200.177073" y="325.830739" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-1" x="203.636805" y="322.371007" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-4" x="208.129479" y="317.878333" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-5" x="212.279913" y="313.727899" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-6" x="268.628906" y="323.410156" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-3" x="270.358772" y="321.68029" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-7" x="273.818504" y="318.220558" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-1" x="277.278236" y="314.760826" />
+</g>
+<g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-1" x="318.066406" y="340.007812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-4" x="322.55908" y="335.515139" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-8" x="326.709514" y="331.364705" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-2" x="330.859948" y="327.214271" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-1" x="335.701084" y="322.373135" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-9" x="340.193757" y="317.880461" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-2-5" x="344.344191" y="313.730027" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-0" x="399.328125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-1" x="407.270125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-2" x="413.386125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-2" x="417.049125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-3" x="420.712125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-4" x="426.828125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-5" x="429.270125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-6" x="435.386125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-7" x="438.444125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-1" x="440.886125" y="120.199219" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-3-8" x="447.002125" y="120.199219" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-10" x="422.085938" y="216.34375" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-5" x="425.016338" y="216.34375" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-11" x="429.909138" y="216.34375" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="432.355538" y="216.34375" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-10" x="422.085938" y="194.816406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="425.016338" y="194.816406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-11" x="429.909138" y="194.816406" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-13" x="432.355538" y="194.816406" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="422.085938" y="173.285156" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-11" x="426.978738" y="173.285156" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="429.425138" y="173.285156" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="422.085938" y="151.757812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-11" x="426.978738" y="151.757812" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-13" x="429.425138" y="151.757812" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-5" x="422.085938" y="130.230469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-11" x="426.978738" y="130.230469" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-1-12" x="429.425138" y="130.230469" />
+</g>
+<g fill="rgb(0%, 0%, 0%)" fill-opacity="1">
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-0" x="105.546875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-1" x="113.612075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-2" x="120.951275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-3" x="128.290475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-4" x="131.960075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-3" x="139.299275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-5" x="142.968875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-6" x="152.499275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-7" x="155.429675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-8" x="162.768875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="170.108075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-10" x="177.447275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="181.116875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-11" x="188.456075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-12" x="195.056075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-13" x="199.451675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="208.982075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-14" x="216.321275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-7" x="219.251675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-10" x="226.590875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="230.260475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-15" x="237.599675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-3" x="244.938875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-16" x="248.608475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="258.878075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-17" x="266.217275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="273.556475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-11" x="280.895675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-18" x="287.495675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-3" x="291.165275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-19" x="294.834875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-1" x="304.365275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-12" x="311.704475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="316.100075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-20" x="323.439275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-2" x="330.039275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-21" x="337.378475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="341.774075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-11" x="349.113275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-11" x="355.713275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-6" x="362.313275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-1" x="365.243675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-17" x="372.582875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-3" x="379.922075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-22" x="383.591675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-7" x="392.396075" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-10" x="399.735275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-10" x="403.404875" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-9" x="407.074475" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-21" x="414.413675" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-17" x="418.809275" y="15.101562" />
+<use xlink:href="#svg_91bcc07525ef142ac298_glyph-4-11" x="426.148475" y="15.101562" />
+</g>
+</g>
+</g>
+</defs>
+<g filter="url(#svg_91bcc07525ef142ac298_filter-0)" transform="translate(-50.4, -36)">
+<rect x="0" y="0" width="604.8" height="432" fill="rgb(0%, 0%, 0%)" fill-opacity="1" />
+</g>
+</svg></p>
+</figure>
 </div>
-</section>
-<section id="log2-transformation-of-expression-levels" class="level2">
-<h2 class="anchored" data-anchor-id="log2-transformation-of-expression-levels">Log2 transformation of expression levels</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>transformed_data <span class="ot">&lt;-</span> selected_data <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">&quot;GSM&quot;</span>), log2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="remove-duplicates" class="level2">
-<h2 class="anchored" data-anchor-id="remove-duplicates">Remove duplicates</h2>
-<p>Some genes (IDENTIFIER) have been measured with multiple probes (ID_ref).</p>
-<p>We selected the probe with the highest median expression for each gene, as this provides the most robust and reliably measured representation of gene expression levels.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate multiple probes on same gene: </span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the probe with highest median expression for each gene</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>aggregated_data <span class="ot">&lt;-</span> transformed_data <span class="sc">|&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(IDENTIFIER) <span class="sc">|&gt;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">probe_median =</span> <span class="fu">apply</span>(<span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">&quot;GSM&quot;</span>)), <span class="dv">1</span>, median)) <span class="sc">|&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(probe_median, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span>  <span class="co"># Keep the best-expressed probe</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>probe_median) <span class="sc">|&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="merge-data" class="level2">
-<h2 class="anchored" data-anchor-id="merge-data">Merge data</h2>
-<p>The transformed data is merged with the disease_label data. The label is merged by “Sample” and is added as the last row in the data set.</p>
-<p>This data set has subjects as columns and genes as observations.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>label_row <span class="ot">&lt;-</span> disease_label <span class="sc">|&gt;</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Sample,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> disease.state) <span class="sc">|&gt;</span> </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">IDENTIFIER =</span> <span class="st">&quot;disease.state&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(IDENTIFIER, <span class="fu">everything</span>())</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>data_as_characters <span class="ot">&lt;-</span> aggregated_data <span class="sc">|&gt;</span> </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">&quot;GSM&quot;</span>), as.character))</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>df_clean <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(data_as_characters, label_row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="save-clean-data-as-a-csv-file." class="level2">
-<h2 class="anchored" data-anchor-id="save-clean-data-as-a-csv-file.">Save clean data as a csv-file.</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(df_clean, <span class="at">file=</span><span class="st">&quot;../data/02_clean_data.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-</section>
-<section id="transpose-data" class="level1">
-<h1>Transpose Data</h1>
-<p>For some parts of the further analysis,</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_clean_selected <span class="ot">&lt;-</span> df_clean <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(IDENTIFIER, <span class="fu">starts_with</span>(<span class="st">&quot;GSM&quot;</span>))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df_transposed <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">t</span>(df_clean_selected))</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df_transposed_clean <span class="ot">&lt;-</span> df_transposed <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">as.character</span>(<span class="fu">slice</span>(df_transposed, <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">unlist</span>())) <span class="sc">|&gt;</span> </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Save transposed data as a csv file</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.table</span>(df_transposed_clean, <span class="at">file=</span><span class="st">&quot;../data/02_transposed_data.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 

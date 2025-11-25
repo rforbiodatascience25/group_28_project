@@ -25,6 +25,8 @@ Lena
 
 ## Methods - p.values
 
+Bolette
+
 ## Results - Median
 
 Lena
@@ -35,9 +37,9 @@ Emma
 
 ## Results - combined / correlation matrix
 
-vælger 10 gener
+vælger 10 gener, correlation matrix
 
-correlation matrix
+Bolette
 
 ## Discussion / Conclusion
 
