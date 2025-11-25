@@ -1,0 +1,121 @@
+---
+title: "06_pval_analysis"
+format:
+  html:
+    embed-resources: true
+knitr:
+  opts_chunk:
+    dev: "svg"
+    fig.path: "../results/"
+editor: visual
+---
+
+## Load libraries and data
+
+```{r}
+#| message: false
+library("tidyverse")
+library("broom")
+```
+
+## Load data and transform
+
+```{r}
+fold_change_data <- read.csv("../data/02_clean_data.csv")
+
+fold_change_data_clean <- fold_change_data |>
+  select(IDENTIFIER, starts_with("GSM"))
+
+fold_change_data_transposed <- as.data.frame(t(fold_change_data_clean))
+```
+
+```{r}
+fold_change_data_transposed <- fold_change_data_transposed |>
+  rename_with(~ as.character(slice(fold_change_data_transposed, 1) |>
+  unlist())) |>
+  slice(-1)
+```
+
+# Calculating p-values
+
+Before we can do any form of analysis, we first need to find our p-values for the expression values. We will be using purr for this.
+
+```{r}
+fold_change_data_long <- fold_change_data_transposed |>
+  pivot_longer(
+    cols = -starts_with("disease.state"),
+    names_to = "gene",
+    values_to = "log_fold_change"
+  ) |>
+  mutate(disease.state = factor(disease.state)) |>
+  mutate(log_fold_change = as.numeric(log_fold_change))
+```
+
+Now that we pivoted the table to one long dataframe instead we can move on to the next step.
+
+```{r}
+fold_change_data_nested <- fold_change_data_long |>
+  group_by(gene) |>
+  nest() |>
+  ungroup()
+```
+
+```{r}
+fold_change_data_nested_with_pvals <- fold_change_data_nested |>
+  group_by(gene) |>
+  mutate(model_object = map(.x = data,
+                            .f = ~tidy(lm(formula = log_fold_change ~ disease.state,
+                                     data = .x),
+                                     conf.int = TRUE,
+                                     conf.level = 0.95))) |>
+  ungroup()
+```
+
+```{r}
+t2d_estimates <- fold_change_data_nested_with_pvals |>
+  unnest(model_object)
+```
+
+```{r}
+t2d_estimates <- t2d_estimates |>
+  subset(term == "disease.stateT2D") |>
+  select(gene, p.value, estimate, conf.low, conf.high) |>
+  ungroup()
+```
+
+```{r}
+t2d_estimates <- t2d_estimates |>
+  mutate(is.significant = ifelse(p.value < 0.05, "yes", "no"))
+```
+
+```{r}
+t2d_estimates |>
+  group_by(is.significant) |>
+  summarise(count = n())
+```
+
+```{r}
+t2d_estimates_selected <- t2d_estimates |>
+  arrange(p.value) |>
+  slice_head(n = 30)
+```
+
+```{r}
+t2d_estimates_selected |>
+  subset(is.significant == "yes") |>
+  ggplot(
+    mapping = aes(x = estimate,
+                  y = fct_reorder(gene,estimate))
+  )+
+  geom_point() +
+  geom_errorbarh(aes(xmin = conf.low, 
+                     xmax = conf.high),
+                 height = 0.5) +
+  geom_vline(xintercept = 0,
+             linetype = "solid",
+             color = "black") +
+  labs(title = "Header",
+       x = "Estimates with 95%CI",
+       y = "") +
+  theme_minimal()
+```
