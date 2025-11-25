@@ -1,0 +1,184 @@
+---
+title: "04_analysis"
+format:
+  html:
+    embed-resources: true
+knitr:
+  opts_chunk:
+    dev: "svg"
+    fig.path: "../results/"
+editor: visual
+---
+
+# Analysis of gene expressions
+
+To identify genes that might have an impact on type 2 diabetes development, we want to select genes with large expression differences between type 2 diabetes (T2D) and control groups.
+
+## Load libraries and data
+
+```{r}
+#| message: false
+#| label: setup
+library("tidyverse")
+library("matrixStats")
+```
+
+## Load data
+
+```{r}
+#| label: load data
+df_T2D <- read.csv("../data/03_T2D_data.csv")
+df_non_T2D <- read.csv("../data/03_none_T2D_data.csv")
+```
+
+### Gene expression differences
+
+We will for each data set use the median of the samples of each gene and save them:
+
+```{r}
+# selects all columns that start with "GSM", and calculate median across rows/genes,
+# alongside the standard deviation for the log2 transformed expression,
+# then identifier (gene name), median and standard deviation are selected and saved.
+
+# For type 2 diabetes:
+df_T2D_medians <- df_T2D |>
+  mutate(median_expression_T2D = rowMedians(as.matrix(across(starts_with("GSM"))))) |>
+  mutate(sd_expression_T2D = rowSds(as.matrix(across(starts_with("GSM"))))) |>
+  select(IDENTIFIER, median_expression_T2D, sd_expression_T2D)
+
+# For control group:
+df_non_T2D_medians <- df_non_T2D |>
+  mutate(median_expression_control = rowMedians(as.matrix(across(starts_with("GSM"))))) |>
+  mutate(sd_expression_control = rowSds(as.matrix(across(starts_with("GSM"))))) |>
+  select(IDENTIFIER, median_expression_control, sd_expression_control)
+```
+
+Now we will merge the T2D and control medians that we created above, by identifier with inner join. We also calculate the difference of the expression levels and the absolute difference.
+
+```{r}
+expression_comparison <- df_T2D_medians |>
+  inner_join(df_non_T2D_medians, by = "IDENTIFIER") |>
+  mutate(
+    median_difference = median_expression_T2D - median_expression_control, # difference medians
+    abs_difference = abs(median_difference) # absolute difference
+  ) |>
+  arrange(desc(abs_difference)) # arrange by the largest absolute difference first
+
+top_diff_genes <- head(expression_comparison, 20)
+
+print("Top 20 differentially expressed genes (by sample medians):")
+print(top_diff_genes)
+```
+
+## Visualization of top gene differences
+
+```{r}
+options(bitmapType='cairo')
+# Prepare data for plotting
+top_20_plot <- head(expression_comparison, 20) |>
+  mutate(
+    direction = ifelse(median_difference > 0, "Up in T2D", "Down in T2D"),
+    gene_label = IDENTIFIER
+  )
+
+# bar plot
+ggplot(top_20_plot, aes(x = reorder(gene_label, median_difference), 
+                       y = median_difference, 
+                       fill = direction)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top 20 Genes with Largest Expression Differences (Median)",
+    subtitle = "T2D vs Control Groups",
+    x = "Gene Identifier",
+    y = "Expression Difference (T2D - Control)",
+    fill = "Expression Direction"
+  ) +
+  scale_fill_manual(values = c("Up in T2D" = "red", "Down in T2D" = "blue")) +
+  theme_minimal()
+```
+
+```{r}
+
+```
+
+```{r}
+# Show actual expression values for top 10 genes
+top_10_genes <- head(expression_comparison, 10)$IDENTIFIER
+
+# Create the combined data properly for boxplot
+plot_data <- bind_rows(
+  df_T2D |> 
+    filter(IDENTIFIER %in% top_10_genes) |>
+    select(IDENTIFIER, starts_with("GSM")) |>
+    pivot_longer(cols = -IDENTIFIER, names_to = "sample", values_to = "expression") |>
+    mutate(group = "T2D"),
+  
+  df_non_T2D |> 
+    filter(IDENTIFIER %in% top_10_genes) |>
+    select(IDENTIFIER, starts_with("GSM")) |>
+    pivot_longer(cols = -IDENTIFIER, names_to = "sample", values_to = "expression") |>
+    mutate(group = "Control")
+)
+
+# Create the boxplot
+ggplot(plot_data, aes(x = IDENTIFIER, y = expression, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Expression Distribution of Top 10 Differential Genes",
+       x = "Gene", y = "Expression Level") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate gene names if they overlap
+```
+
+```         
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+# Get top 10 most differential genes
+top_10_genes <- head(expression_comparison, 10)$IDENTIFIER
+
+# Use df_T2D for correlation
+cor_data_top10 <- df_T2D |>
+  filter(IDENTIFIER %in% top_10_genes) |>
+  select(IDENTIFIER, starts_with("GSM")) |>
+  column_to_rownames("IDENTIFIER") |>
+  t() |>
+  cor(use = "pairwise.complete.obs")
+
+# Convert to tidy format using tidyverse (no melt)
+melted_cor_top10 <- cor_data_top10 |>
+  as.data.frame() |>
+  rownames_to_column("Var1") |>
+  pivot_longer(cols = -Var1, names_to = "Var2", values_to = "value")
+
+# Create expression direction data
+top_10_plot_data <- expression_comparison |>
+  filter(IDENTIFIER %in% top_10_genes) |>
+  mutate(direction = ifelse(median_difference > 0, "Up in T2D", "Down in T2D"))
+
+# Create the heatmap (rest of your code stays the same)
+ggplot(melted_cor_top10, aes(Var1, Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limits = c(-1, 1),
+                       name = "Correlation") +
+  geom_text(aes(label = round(value, 2)), color = "black", size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Top 10 Diabetes-Related Genes: Co-expression Patterns",
+       subtitle = paste("Red = higher in T2D (", 
+                       sum(top_10_plot_data$direction == "Up in T2D"), " genes) | ",
+                       "Blue = lower in T2D (", 
+                       sum(top_10_plot_data$direction == "Down in T2D"), " genes)",
+                       sep = ""),
+       x = "", y = "") +
+  coord_fixed()
+```
