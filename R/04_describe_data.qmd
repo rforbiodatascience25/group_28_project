@@ -1,8 +1,13 @@
 ---
 title: "04_describe_data"
-format: html
+format:
+  html:
+    embed-resources: true
+knitr:
+  opts_chunk:
+    dev: "svg"
+    fig.path: "../results/"
 editor: visual
-output-file: results/04_describe_data.html
 ---
 
 # Load libraries
