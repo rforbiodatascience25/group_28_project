@@ -73,7 +73,7 @@ print(top_diff_genes)
 ## Save the top 25 genes for further analysis
 
 ```{r}
-top_diff_genes <- head(expression_comparison, 25)
+top_diff_genes <- head(expression_comparison, 30)
 top_diff_genes |> 
   select(IDENTIFIER) |> 
   write.csv("../data/05_selected_genes_median.csv")
@@ -84,7 +84,7 @@ top_diff_genes |>
 ```{r}
 options(bitmapType='cairo')
 # Prepare data for plotting
-top_20_plot <- head(expression_comparison, 20) |>
+top_20_plot <- head(expression_comparison, 30) |>
   mutate(
     direction = ifelse(median_difference > 0, "Up in T2D", "Down in T2D"),
     gene_label = IDENTIFIER
