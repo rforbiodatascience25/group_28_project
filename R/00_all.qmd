@@ -11,10 +11,10 @@ editor: visual
 source("99_proj_func.R") # Import helper functions  
 ```
 
-## Run & render specified "/R" scripts
+## Specified "/R" scripts
 
 ```{r}
-#| label: Run & render specified /R scripts
+#| label: Specified /R scripts
 #| include: false
 
 # list of files to run/render in /R
@@ -22,7 +22,7 @@ source("99_proj_func.R") # Import helper functions
 
 
 qmd_files <- c(                 
-  "100_test.qmd"
+  "01_load_data.qmd"
   )
 
 #Run/render
@@ -31,10 +31,10 @@ qmd_files |>
   invisible()
 ```
 
-## Run & render ALL "/R" scripts
+## ALL "/R" scripts
 
 ```{r}
-#| label: Run & render ALL /R scripts
+#| label: ALL /R scripts
 #| include: false
 
 #list of files NOT to run (do not change).
@@ -53,4 +53,6 @@ all_qmd_files |>
   invisible()
 ```
 
-\
+```{r}
+save_qmd_objects("03_aug_data.qmd")
+```

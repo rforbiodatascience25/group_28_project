@@ -10,6 +10,15 @@ knitr:
 editor: visual
 ---
 
+```{r}
+#| label: setup
+#Load libraries
+library("BiocGenerics")
+library("Biobase")
+library("GEOquery")
+library(tidyverse)
+```
+
 # Create local directories
 
 ```{r}
@@ -35,11 +44,6 @@ curl::curl_download(url = input_url, destfile = output_file)
 ```{r}
 #| label: convert & save to ../data
 
-#Load libraries for table conversion
-library("BiocGenerics")
-library("Biobase")
-library("GEOquery")
-
 #Convert .soft file to table object and save in ../data
 GEO_data <- getGEO(filename="../_raw/full_dataset.soft.gz") 
 data_table <- Table(GEO_data)
@@ -49,7 +53,6 @@ data_table <- Table(GEO_data)
 # Save object table to /data
 
 ```{r}
-library(tidyverse)
 write.csv(data_table, file="../data/01_data_table_load.csv")
 
 #Extrack "disease.state" from .soft dataset

@@ -50,7 +50,9 @@ transformed_data <- selected_data |>
 
 ## Remove duplicates
 
-Some genes (IDENTIFIER) have been measured with multiple probes (ID_ref)
+Some genes (IDENTIFIER) have been measured with multiple probes (ID_ref).
+
+We selected the probe with the highest median expression for each gene, as this provides the most robust and reliably measured representation of gene expression levels.
 
 ```{r}
 # Aggregate multiple probes on same gene: 
