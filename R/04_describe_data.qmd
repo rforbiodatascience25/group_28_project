@@ -15,59 +15,48 @@ editor: visual
 ```{r}
 #| message: false
 library("tidyverse")
-
+library("patchwork")
 ```
 
 # Describe data
 
-In this document, we will make some descriptive statistics of the two data sets.
+In this document, we will make some descriptive statistics on the cleaned (transposed) data set.
 
--   Rows = genes
+-   Each row contains one sample
 
--   Cols = samples + metadata
+-   Each gene is a column
 
 ## Load data
 
 ```{r}
-T2D_data <- read.csv("../data/03_T2D_data.csv")
-none_T2D_data <- read.csv("../data/03_none_T2D_data.csv")
+data <- read.csv("../data/02_transposed_data.csv")
+```
 
-# Overview
-head(T2D_data)
-head(none_T2D_data)
-
+```{r}
+# Renaming the samples column to "Samples"
+data <- data |> 
+  rename(Samples = X)
 ```
 
 ## Number of genes
 
 ```{r}
-genes_T2D <- nrow(T2D_data)
-genes_none_T2D <- nrow(none_T2D_data)
-
-genes_T2D
-genes_none_T2D
-
+data |>
+  select(-Samples, -disease.state) |>
+  ncol()
 ```
 
 ## Samples
 
-Counting the sample size for each group (diabetic and none-diabetic) based on the column names starting with "GSM".
+Counting the sample size for each group (diabetic and none-diabetic) based on the column "disease.state".
 
 ```{r}
-samples_count_T2D <- T2D_data |>
-  select(starts_with("GSM")) |>
-  ncol()
-
-samples_count_none_T2D <- none_T2D_data |>
-  select(starts_with("GSM")) |>
-  ncol()
-
-samples_count_T2D
-samples_count_none_T2D
-
+data |>
+  group_by(disease.state) |>
+  summarise(samples_count = n(), .groups = "drop")
 ```
 
-There are in total 14650 genes in both data sets.
+There are in total 14481 genes in both data sets.
 
 There are 9 samples in the diabetic data set (T2D).
 
@@ -75,99 +64,96 @@ There are 54 in the control data set (none-diabetic).
 
 ## Statistics
 
-The basic statistics for group is calculated separately and displayed in a tibble.
+The basic statistics for each group is calculated separately and displayed in a tibble.
 
 The diabetic data set (T2D):
 
 ```{r}
-samples_T2D <- T2D_data |>
-  select(starts_with("GSM"))
+stats_T2D <- data |>
+  filter(disease.state == "T2D") |>
+  select(-Samples, -disease.state) |>
+  # Calculations
+  summarise(across(everything(), 
+           list(mean = ~ mean(.x, na.rm = TRUE),
+                median = ~ median(.x, na.rm = TRUE),
+                sd = ~ sd(.x, na.rm =TRUE)))) |>
+  # Converting the results into 
+  pivot_longer(cols = everything(),
+               names_to = c("Genes", ".value"),
+               names_pattern = "^(.*)_(mean|median|sd)$")
 
-# Calculations
-gene_means_T2D <- rowMeans(samples_T2D, na.rm = TRUE)
-gene_medians_T2D <- apply(samples_T2D, 1, median, na.rm = TRUE)
-gene_sd_T2D <- apply(samples_T2D, 1, sd, na.rm = TRUE)
-
-```
-
-The mean, median, and standard deviation for each gene are displayed below:
-
-```{r}
-stats_T2D <- tibble(
-  gene = T2D_data$IDENTIFIER,
-  mean = gene_means_T2D,
-  median = gene_medians_T2D,
-  sd = gene_sd_T2D
-)
-
-# Display statistics 
 stats_T2D
-
 ```
 
 The control data set (none-diabetic):
 
 ```{r}
-samples_none_T2D <- none_T2D_data |>
-  select(starts_with("GSM"))
+stats_control <- data |>
+  filter(disease.state == "non-diabetic") |>
+  select(-Samples, -disease.state) |>
+  summarise(across(everything(), 
+           list(mean = ~ mean(.x, na.rm = TRUE),
+                median = ~ median(.x, na.rm = TRUE),
+                sd = ~ sd(.x, na.rm =TRUE)))) |>
+  pivot_longer(cols = everything(),
+               names_to = c("Genes", ".value"),
+               names_pattern = "^(.*)_(mean|median|sd)$")
 
-# Calculations
-gene_means_none_T2D <- rowMeans(samples_none_T2D, na.rm = TRUE)
-gene_medians_none_T2D <- apply(samples_none_T2D, 1, median, na.rm = TRUE)
-gene_sd_none_T2D <- apply(samples_none_T2D, 1, sd, na.rm = TRUE)
-
+stats_control
 ```
 
-The mean, median, and standard deviation for each gene are displayed below:
+## Visualization of mean gene expression
+
+First, we combine the two statistic data sets (stats_T2D and stats_control) in order to plot together.
 
 ```{r}
-stats_none_T2D <- tibble(
-  gene = none_T2D_data$IDENTIFIER,
-  mean = gene_means_none_T2D,
-  median = gene_medians_none_T2D,
-  sd = gene_sd_none_T2D
-)
-
-# Display statistics
-stats_none_T2D
-
+combined_stats <- bind_rows(stats_T2D |>
+                              mutate(group = "T2D"),
+                            stats_control |>
+                              mutate(group = "None-diabetic"))
 ```
 
-## Visualization of the mean gene expression (histograms)
-
-Diabetic (T2D):
+Density plot of the mean gene expression:
 
 ```{r}
-ggplot() +
-  geom_histogram(aes(x = gene_means_T2D),
-                 bins = 50,
-                 fill = "red",
-                 color = "black") +
+#| label: combined density plot
+combined_stats |>
+  ggplot(aes(x = mean, fill = group)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal() + 
+  labs(title = "Density plot of mean gene expression",
+       x = "Mean gene expression",
+       y = "Density",
+       fill = "Group")
+```
+
+Boxplot of the mean gene expression:
+
+```{r}
+#| label: combined boxplot
+combined_stats |>
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_boxplot() +
   theme_minimal() +
-  labs(title = "Histogram of mean gene expression (T2D)",
-    x = "Mean gene expression",
-    y = "Number of genes")
-
+  labs(title = "Boxplot of mean gene expression",
+       x = "Group",
+       y = "Mean gene expression")
 ```
 
-Control (none-diabetic):
-
 ```{r}
-ggplot() +
-  geom_histogram(aes(x = gene_means_none_T2D),
-                 bins = 50,
-                 fill = "blue",
+#| label: combined histogram
+ggplot(combined_stats, aes(x = mean, fill = group)) +
+  geom_histogram(bins = 60,
                  color = "black") +
+  facet_wrap(~group) +
   theme_minimal() +
-  labs(title = "Histogram of mean gene expression (T2D)",
-    x = "Mean gene expression",
-    y = "Number of genes")
+  theme(legend.position = "bottom")
 
 ```
 
 ## Conclusion
 
-Both data sets contain 14650 different genes but differ in sample size as there are 9 T2D samples and 54 control samples.
+Both data sets contain 14481 different genes but differ in sample size as there are 9 T2D samples and 54 control samples.
 
 Generally, the distribution of the mean and median gene expression is similar between both data sets with some genes with a higher expression causing a slightly right-skewed distribution.
 
