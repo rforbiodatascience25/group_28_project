@@ -32,7 +32,7 @@ transposed_expression_data <- read.table("../data/02_transposed_data.csv")
 
 First and foremost we need to get our dataset into proper shape for our analysis and for easier calculation of p-values. We will be using methodology very alike to that seen in Lab 06.
 
-Step one is using pivot_longer to "fold out" our dataset into one long list and factorise it based on the disease state (either T2D or non-diabetic) as well as transforming
+Step one is using pivot_longer to "fold out" our dataset into one long list and factorise it based on the disease state (either T2D or non-diabetic) as well as transforming our log2 values into numbers.
 
 ```{r}
 #| label: pivot_longer
@@ -46,7 +46,7 @@ expression_data_long <- transposed_expression_data |>
   mutate(log_fold_change = as.numeric(log_fold_change))
 ```
 
-Now that we pivoted the table to one long dataframe instead we can move on to the next step.
+Now that we pivoted the table to one long dataframe we can move on to the next step and nest the values on a per gene basis.
 
 ```{r}
 expression_data_nested <- expression_data_long |>
@@ -54,6 +54,8 @@ expression_data_nested <- expression_data_long |>
   nest() |>
   ungroup()
 ```
+
+With nesting done it is at long last time to calculate some p-values.
 
 ```{r}
 expression_data_nested_with_pvals <- expression_data_nested |>
