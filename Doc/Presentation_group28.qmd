@@ -51,6 +51,10 @@ Bolette
 
 Lena
 
+![](../results/04_unnamed-chunk-10-1.png){width=70%}
+knitr::include_graphics("../results/04_unnamed-chunk-10-1.png")
+
+
 ---
 
 ## Results - p.value

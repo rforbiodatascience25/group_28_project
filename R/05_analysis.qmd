@@ -82,6 +82,7 @@ top_diff_genes |>
 ## Visualization of top gene differences
 
 ```{r}
+#| label: 05_Expression_median_plot
 options(bitmapType='cairo')
 # Prepare data for plotting
 top_30_plot <- head(expression_comparison, 30) |>
