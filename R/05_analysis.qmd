@@ -84,20 +84,20 @@ top_diff_genes |>
 ```{r}
 options(bitmapType='cairo')
 # Prepare data for plotting
-top_20_plot <- head(expression_comparison, 30) |>
+top_30_plot <- head(expression_comparison, 30) |>
   mutate(
     direction = ifelse(median_difference > 0, "Up in T2D", "Down in T2D"),
     gene_label = IDENTIFIER
   )
 
 # bar plot
-ggplot(top_20_plot, aes(x = reorder(gene_label, median_difference), 
+ggplot(top_30_plot, aes(x = reorder(gene_label, median_difference), 
                        y = median_difference, 
                        fill = direction)) +
   geom_col() +
   coord_flip() +
   labs(
-    title = "Top 20 Genes with Largest Expression Differences (Median)",
+    title = "Top 30 Genes with Largest Expression Differences (Median)",
     subtitle = "T2D vs Control Groups",
     x = "Gene Identifier",
     y = "Expression Difference (T2D - Control)",
