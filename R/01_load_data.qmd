@@ -12,6 +12,7 @@ editor: visual
 
 ```{r}
 #| label: setup
+#| message: false
 #Load libraries
 library("BiocGenerics")
 library("Biobase")

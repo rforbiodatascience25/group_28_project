@@ -1,5 +1,5 @@
 ---
-title: "07_correlations"
+title: "07 Correlations"
 format:
   html:
     embed-resources: true

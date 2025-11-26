@@ -94,7 +94,7 @@ t2d_estimates |>
 ```{r}
 t2d_estimates_selected <- t2d_estimates |>
   arrange(p.value) |>
-  slice_head(n = 25)
+  slice_head(n = 30)
 ```
 
 ```{r}

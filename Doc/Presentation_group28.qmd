@@ -4,42 +4,81 @@ format:
   revealjs:
     slide-number: true
     theme: solarized
+    self-contained: true    
+    embed-resources: true   
 editor: visual
 ---
+
 
 ## Introduction
 
 Emma
 
+---
+
 ## Materials / The Data Set (description)
 
 Caroline
+
+---
 
 ## Materials - Wrangling
 
 Frederik
 
-## Methods - median
+---
 
-Lena
+## Methods - Median Expression Differences
+
+- **Goal:** Identify genes with largest expression differences between T2D and control
+- **Approach:**  
+  - Compute **median** expression per gene for T2D and control samples
+  - Calculate absolute differences between groups per gene
+- **Visualization:**
+  - Plot 30 genes with the most different expressions
+  - Bar plot and boxplots
+
+
+---
 
 ## Methods - p.values
 
 Bolette
 
+---
+
 ## Results - Median
 
 Lena
 
+
+::: columns
+
+::: column
+![](../results/01_05_Expression_median_plot-1.png){width=100%}
+:::
+
+::: column
+![](../results/01_05_Expression_median_boxplot-1.png){width=100%}
+:::
+
+:::
+
+---
+
 ## Results - p.value
 
 Emma
+
+---
 
 ## Results - combined / correlation matrix
 
 vælger 10 gener, correlation matrix
 
 Bolette
+
+---
 
 ## Discussion / Conclusion
 
