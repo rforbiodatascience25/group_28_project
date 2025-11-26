@@ -70,7 +70,7 @@ print("Top 20 differentially expressed genes (by sample medians):")
 print(top_diff_genes)
 ```
 
-## Save the top 25 genes for further analysis
+## Save the top 30 genes for further analysis
 
 ```{r}
 top_diff_genes <- head(expression_comparison, 30)

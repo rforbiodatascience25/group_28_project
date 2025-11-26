@@ -4,6 +4,8 @@ format:
   revealjs:
     slide-number: true
     theme: solarized
+    self-contained: true    
+    embed-resources: true   
 editor: visual
 ---
 
@@ -11,19 +13,27 @@ editor: visual
 
 Emma
 
+------------------------------------------------------------------------
+
 ## Materials / The Data Set (description)
 
 Caroline
+
+------------------------------------------------------------------------
 
 ## Materials - Wrangling
 
 Frederik
 
+------------------------------------------------------------------------
+
 ## Methods - median
 
 Lena
 
-## Methods For Selecting Genes Using P-values
+------------------------------------------------------------------------
+
+## Methods - p.value
 
 1.  Transform data
 
@@ -39,13 +49,19 @@ Lena
 
 Bolette
 
+------------------------------------------------------------------------
+
 ## Results - Median
 
 Lena
 
+------------------------------------------------------------------------
+
 ## Results - p.value
 
 Emma
+
+------------------------------------------------------------------------
 
 ## Results - combined / correlation matrix
 
@@ -55,7 +71,9 @@ Correlation Matrix illustration.png (mangler)
 
 Bolette
 
-## Discussion 
+------------------------------------------------------------------------
+
+## Discussion
 
 1\) Difference in two methods
 
