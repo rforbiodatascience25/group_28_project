@@ -77,7 +77,7 @@ stats_T2D <- data |>
            list(mean = ~ mean(.x, na.rm = TRUE),
                 median = ~ median(.x, na.rm = TRUE),
                 sd = ~ sd(.x, na.rm =TRUE)))) |>
-  # Converting the results into 
+  # Adjusting the tibble format of the results
   pivot_longer(cols = everything(),
                names_to = c("Genes", ".value"),
                names_pattern = "^(.*)_(mean|median|sd)$")
@@ -91,10 +91,12 @@ The control data set (none-diabetic):
 stats_control <- data |>
   filter(disease.state == "non-diabetic") |>
   select(-Samples, -disease.state) |>
+  # Calculations
   summarise(across(everything(), 
            list(mean = ~ mean(.x, na.rm = TRUE),
                 median = ~ median(.x, na.rm = TRUE),
                 sd = ~ sd(.x, na.rm =TRUE)))) |>
+  # Adjusting the tibble format of the results
   pivot_longer(cols = everything(),
                names_to = c("Genes", ".value"),
                names_pattern = "^(.*)_(mean|median|sd)$")
@@ -157,4 +159,4 @@ Both data sets contain 14481 different genes but differ in sample size as there 
 
 Generally, the distribution of the mean and median gene expression is similar between both data sets with some genes with a higher expression causing a slightly right-skewed distribution.
 
-Further statistical analyses will be performed combined with a gene selection to determine whether the genes differ systematically between the groups.
+Further statistical analyses will be performed combined with a gene selection to determine whether the genes differ systematically and significantly between the groups.
