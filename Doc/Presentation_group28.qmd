@@ -4,42 +4,61 @@ format:
   revealjs:
     slide-number: true
     theme: solarized
+    self-contained: true    
+    embed-resources: true   
 editor: visual
 ---
+
 
 ## Introduction
 
 Emma
 
+---
+
 ## Materials / The Data Set (description)
 
 Caroline
+
+---
 
 ## Materials - Wrangling
 
 Frederik
 
+---
+
 ## Methods - median
 
 Lena
+
+---
 
 ## Methods - p.values
 
 Bolette
 
+---
+
 ## Results - Median
 
 Lena
 
+---
+
 ## Results - p.value
 
 Emma
+
+---
 
 ## Results - combined / correlation matrix
 
 vælger 10 gener, correlation matrix
 
 Bolette
+
+---
 
 ## Discussion / Conclusion
 
