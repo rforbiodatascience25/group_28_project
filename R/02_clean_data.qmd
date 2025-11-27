@@ -13,6 +13,7 @@ editor: visual
 # Load libraries
 
 ```{r}
+#| label: setup
 #| message: false
 library("tidyverse")
 ```
@@ -22,11 +23,14 @@ library("tidyverse")
 ## Load data
 
 ```{r}
+#| label: Read raw data
 meta_data <- read.csv("../data/01_data_table_load.csv", na = c("", "NA", "N/A"))
 disease_label <- read.csv("../data/01_disease_state_vector_load.csv")
 ```
 
 ## Select relevant columns and remove all NAs
+
+Meta data
 
 ```{r}
 selected_data <- meta_data |>
@@ -36,12 +40,14 @@ selected_data <- meta_data |>
   drop_na()
 ```
 
+Disease Label data
+
 ```{r}
 disease_label <- disease_label |>
   select(-X)
 ```
 
-## Log2 transformation
+## Log2 transformation of expression levels
 
 ```{r}
 transformed_data <- selected_data |>
@@ -68,6 +74,8 @@ aggregated_data <- transformed_data |>
 ## Merge data
 
 The transformed data is merged with the disease_label data. The label is merged by "Sample" and is added as the last row in the data set.
+
+This data set has subjects as columns and genes as observations.
 
 ```{r}
 label_row <- disease_label |> 
