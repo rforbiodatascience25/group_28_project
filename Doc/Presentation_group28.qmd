@@ -27,17 +27,17 @@ Emma
 
     -   54 controls
 
--   **Descriptive statistics:**
+**Descriptive statistics:**
 
-    -   Similar mean and median gene expression across groups
+-   Similar mean and median gene expression across groups
 
-    -   Overall low mean expression levels
+-   Overall low mean expression levels
 
-    -   Right-skewed distribution caused by some higher expressed genes
+-   Right-skewed distribution caused by some higher expressed genes
 
-    -   The two groups show a similar distribution but NOT identical
+-   The two groups show a similar distribution but NOT identical
 
-    -   =\> Investigate significant difference of genes between the groups
+-   =\> Investigate significant difference of genes between the groups
 
 ![](images/04_combined_density_plot.png)
 
