@@ -114,8 +114,7 @@ t2d_estimates |>
 #| label: Select genes with lowest p-values
 t2d_estimates_selected <- t2d_estimates |>
   arrange(p.value) |>
-  filter(p.value < 0.01) |>
-  slice_head(n = 30)
+  filter(p.value < 0.01) 
 ```
 
 ```{r}
@@ -127,7 +126,8 @@ t2d_estimates_selected |>
 
 ```{r}
 #| label: Build final plot
-over_under_expression_plot <- t2d_estimates_selected |>
+over_under_expression_plot <- t2d_estimates_selected |> 
+  slice_head(n = 30) |>
   subset(is.significant == "yes") |>
   ggplot(
     mapping = aes(x = estimate,
