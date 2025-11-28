@@ -39,7 +39,6 @@ Emma
 
 -   =\> Investigate significant difference of genes between the groups
 :::
-
 ::: column
 ![](../results/04_combined_density_plot.png){width="55%"} ![](../results/04_combined_histogram.png){width="55%"}
 :::
