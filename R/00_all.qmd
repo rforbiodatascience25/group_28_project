@@ -22,8 +22,7 @@ source("99_proj_func.R") # Import helper functions
 
 
 qmd_files <- c(                 
-  "07_correlations.qmd",
-  "05_analysis.qmd"
+  "07_correlations.qmd"
   )
 
 #Run/render
