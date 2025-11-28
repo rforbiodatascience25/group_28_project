@@ -15,16 +15,13 @@ editor: visual
 ::: {.column width="60%" style="font-size: 80%;"}
 Type 2 Diabetes (T2D) is a serious health concern and identifying gene markers associated with the disease can help catch it early in new patients.
 
-------------------------------------------------------------------------
-=======
 Our analysis is focused on
 
 -   Identifying gene markers
 
 -   Identifying key over- and under-expressed genes
 
-=======
--   Looking into co-expression of key genes
+Looking into co-expression of key genes
 :::
 
 ::: {.column width="40%" style="font-size: 80%;"}
@@ -61,6 +58,7 @@ Data source:
 
 -   =\> Investigate significant difference of genes between the groups
 :::
+
 ::: column
 ![](../results/04_combined_density_plot.png){width="55%"} ![](../results/04_combined_histogram.png){width="55%"}
 :::
@@ -72,23 +70,15 @@ Frederik
 
 ------------------------------------------------------------------------
 
-## Methods - median
-=======
-
-
 ## Methods - Median Expression Differences {.smaller}
-Lena
--   **Goal:** Identify genes with largest expression differences between T2D and control
 
-=======
--   **Approach:**
-    -   Compute **median** expression per gene for T2D and control samples
-    -   Calculate absolute differences between groups per gene
+Lena - **Goal:** Identify genes with largest expression differences between T2D and control
+
+\- **Approach:** - Compute **median** expression per gene for T2D and control samples - Calculate absolute differences between groups per gene
 
 -   **Visualization:**
     -   Plot 30 genes with the most different expressions
     -   Bar plot and boxplots
-
 
 ## Methods - p.value
 
@@ -106,34 +96,24 @@ Lena
 
 Bolette
 
-------------------------------------------------------------------------
-
 ## Results - Median Expression Differences
 
 Lena
 
-=======
-::::: columns
-::: column
-![](../results/01_05_Expression_median_plot-1.png){width="100%"}
-:::
+::::: columns ::: column ![](../results/01_05_Expression_median_plot-1.png){width="100%"} :::
 
 ::: column
 ![](../results/01_05_Expression_median_boxplot-1.png){width="100%"}
 :::
+
 :::::
-
-
 
 ## Results - p.value
 
 ::::: columns
 ::: {.column width="50%" style="font-size: 80%;"}
 -   Final p-value selection was p \< 0.01
-
-=======
--   635 genes labelled significant
-
+-   \- 635 genes labelled significant
 -   Top 30 most significant (lowest p-vals) chosen for visualisation
 :::
 
@@ -141,7 +121,6 @@ Lena
 ![](images/06_over_under_expression_plot.png)
 :::
 :::::
-
 
 ## Results - combined / correlation matrix
 
@@ -151,8 +130,6 @@ Correlation Matrix illustration.png (mangler)
 
 Bolette
 
-------------------------------------------------------------------------
-
 ## Discussion
 
 1\) Difference in two methods
@@ -161,3 +138,4 @@ Bolette
 
 3\) does they support the litterature? uniprot...
 
+## Conclusion

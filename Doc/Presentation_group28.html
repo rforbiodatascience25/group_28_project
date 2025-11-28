@@ -1153,21 +1153,12 @@ margin-right: 0; }
 <div class="columns">
 <div class="column" style="font-size: 80%;">
 <p>Type 2 Diabetes (T2D) is a serious health concern and identifying gene markers associated with the disease can help catch it early in new patients.</p>
-<section id="head" class="slide level2">
-<h2>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h2>
-<p>======= Our analysis is focused on &gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</p>
+<p>Our analysis is focused on</p>
 <ul>
 <li><p>Identifying gene markers</p></li>
 <li><p>Identifying key over- and under-expressed genes</p></li>
 </ul>
-</section>
-<section id="head-1" class="title-slide slide level1 center">
-<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
-<ul>
-<li>Looking into co-expression of key genes</li>
-</ul>
-</section>
-
+<p>Looking into co-expression of key genes</p>
 </div><div class="column" style="font-size: 80%;">
 <p>Data source:</p>
 <p><strong>A Systems Genetics Approach Identifies Genes and Pathways for Type 2 Diabetes in Human Islets<br>
@@ -1198,37 +1189,21 @@ margin-right: 0; }
 <p><img role="img" data-src="../results/04_combined_density_plot.png" style="width:55.0%"> <img role="img" data-src="../results/04_combined_histogram.png" style="width:55.0%"></p>
 </div></div>
 </section>
-<section id="a95a1e034e9700fa337bc5085a47b6c819078113" class="slide level2">
-<h2>&gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</h2>
-</section>
 <section id="materials---wrangling" class="slide level2">
 <h2>Materials - Wrangling</h2>
 <p>Frederik</p>
-<table class="caption-top">
-<colgroup>
-<col style="width: 100%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">## Methods - median ======= &gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">## Methods - Median Expression Differences {.smaller} Lena - <strong>Goal:</strong> Identify genes with largest expression differences between T2D and control</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD ======= - <strong>Approach:</strong> - Compute <strong>median</strong> expression per gene for T2D and control samples - Calculate absolute differences between groups per gene</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">- <strong>Visualization:</strong> - Plot 30 genes with the most different expressions - Bar plot and boxplots</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">&gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</td>
-</tr>
-</tbody>
-</table>
+</section>
+<section id="methods---median-expression-differences" class="slide level2 smaller">
+<h2>Methods - Median Expression Differences</h2>
+<p>Lena - <strong>Goal:</strong> Identify genes with largest expression differences between T2D and control</p>
+<p>- <strong>Approach:</strong> - Compute <strong>median</strong> expression per gene for T2D and control samples - Calculate absolute differences between groups per gene</p>
+<ul>
+<li><strong>Visualization:</strong>
+<ul>
+<li>Plot 30 genes with the most different expressions</li>
+<li>Bar plot and boxplots</li>
+</ul></li>
+</ul>
 </section>
 <section id="methods---p.value" class="slide level2">
 <h2>Methods - p.value</h2>
@@ -1247,19 +1222,10 @@ margin-right: 0; }
 <section id="results---median-expression-differences" class="slide level2">
 <h2>Results - Median Expression Differences</h2>
 <p>Lena</p>
-</section>
-<section>
-<section id="head-2" class="title-slide slide level1 center">
-<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
-<div class="columns">
+<p>::::: columns ::: column <img role="img" data-src="../results/01_05_Expression_median_plot-1.png" style="width:100.0%"> :::</p>
 <div class="column">
-<p><img role="img" data-src="../results/01_05_Expression_median_plot-1.png" style="width:100.0%"></p>
-</div><div class="column">
 <p><img role="img" data-src="../results/01_05_Expression_median_boxplot-1.png" style="width:100.0%"></p>
-</div></div>
-</section>
-<section id="a95a1e034e9700fa337bc5085a47b6c819078113-1" class="slide level2">
-<h2>&gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</h2>
+</div><p>:::::</p>
 </section>
 <section id="results---p.value" class="slide level2">
 <h2>Results - p.value</h2>
@@ -1267,21 +1233,12 @@ margin-right: 0; }
 <div class="column" style="font-size: 80%;">
 <ul>
 <li>Final p-value selection was p &lt; 0.01</li>
+<li>- 635 genes labelled significant</li>
+<li>Top 30 most significant (lowest p-vals) chosen for visualisation</li>
 </ul>
-<section id="head-3" class="title-slide slide level1 center">
-<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
-<ul>
-<li><p>635 genes labelled significant</p></li>
-<li><p>Top 30 most significant (lowest p-vals) chosen for visualisation</p></li>
-</ul>
-</section>
-
 </div><div class="column" style="width:60%;">
 <p><img role="img" data-src="images/06_over_under_expression_plot.png"></p>
 </div></div>
-</section>
-<section id="a95a1e034e9700fa337bc5085a47b6c819078113-2" class="slide level2">
-<h2>&gt;&gt;&gt;&gt;&gt;&gt;&gt; a95a1e034e9700fa337bc5085a47b6c819078113</h2>
 </section>
 <section id="results---combined-correlation-matrix" class="slide level2">
 <h2>Results - combined / correlation matrix</h2>
@@ -1302,7 +1259,7 @@ margin-right: 0; }
 
 </div>
 </div>
-</section></section>
+</section>
     </div>
   </div>
 
