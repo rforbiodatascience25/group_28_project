@@ -22,7 +22,8 @@ source("99_proj_func.R") # Import helper functions
 
 
 qmd_files <- c(                 
-  "01_load_data.qmd"
+  "07_correlations.qmd",
+  "05_analysis.qmd"
   )
 
 #Run/render
@@ -51,8 +52,4 @@ all_qmd_files <- list.files(path = ".", full.names = FALSE) |>
 all_qmd_files |> 
   lapply(render_qmd) |> 
   invisible()
-```
-
-```{r}
-save_qmd_objects("03_aug_data.qmd")
 ```

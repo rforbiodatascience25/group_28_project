@@ -1,11 +1,11 @@
 ---
-title: "04_analysis"
+title: "05_analysis"
 format:
   html:
     embed-resources: true
 knitr:
   opts_chunk:
-    dev: "svg"
+    dev: "ragg_png"
     fig.path: "../results/"
 editor: visual
 ---
@@ -82,7 +82,7 @@ top_diff_genes |>
 ## Visualization of top gene differences
 
 ```{r}
-#| label: 05_Expression_median_plot
+#| label: Expression_median_plot
 # options(bitmapType='cairo')
 # Prepare data for plotting
 top_30_plot <- head(expression_comparison, 30) |>
@@ -113,7 +113,7 @@ ggplot(top_30_plot, aes(x = reorder(gene_label, median_difference),
 ```
 
 ```{r}
-#| label: 05_Expression_median_boxplot
+#| label: Expression_median_boxplot
 # Show actual expression values for top 10 genes
 top_10_genes <- head(expression_comparison, 10)$IDENTIFIER
 
