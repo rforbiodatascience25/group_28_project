@@ -72,7 +72,7 @@ Frederik
 ------------------------------------------------------------------------
 
 ## Methods - Median Expression Differences {.smaller}
-
+Lena
 -   **Goal:** Identify genes with largest expression differences between T2D and control
 
 -   **Approach:**
@@ -95,7 +95,7 @@ Bolette
 
 ------------------------------------------------------------------------
 
-## Results - Median
+## Results - Median Expression Differences
 
 Lena
 
