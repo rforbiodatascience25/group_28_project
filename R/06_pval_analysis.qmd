@@ -152,10 +152,12 @@ over_under_expression_plot <- t2d_estimates_selected |>
        caption = "Data source: https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS4337") +
   theme_minimal() +
   theme(legend.position = "bottom")
+
+over_under_expression_plot
 ```
 
 ```{r}
 #| label: over_under_expression_plot
-over_under_expression_plot
 ggsave("../results/06_over_under_expression_plot.png", over_under_expression_plot)
 ```
+
