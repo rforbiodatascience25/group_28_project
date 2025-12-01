@@ -61,7 +61,7 @@ editor: visual
 
 ## Materials - Wrangling
 
-![](../results/wrangle.png)
+![](../results/wrangle_.png)
 
 ------------------------------------------------------------------------
 
@@ -182,4 +182,10 @@ Per gene:
 
 ## Conclusion
 
-Frederik
+-   only small difference between groups observed
+
+-   Unclear how significant
+
+-   Missing broader context.
+
+-   Rudimentary methods applied, more advanced analysis required.
