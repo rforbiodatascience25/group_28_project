@@ -53,12 +53,8 @@ editor: visual
 :::
 
 ::: column
-<<<<<<< HEAD
 ![](../results/04_Combined density plot-1.png){width="60%"}
 ![](../results/04_Combined histogram-1.png){width="60%"}
-=======
-![](../results/04_Combined%20density%20plot-1.png) ![](../results/04_Combined%20histogram-1.png)
->>>>>>> d30bc4c50278f065fad46d22d0941d85c5ba00b4
 :::
 :::::
 
