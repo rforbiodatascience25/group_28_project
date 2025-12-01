@@ -53,8 +53,12 @@ editor: visual
 :::
 
 ::: column
+<<<<<<< HEAD
 ![](../results/04_Combined density plot-1.png){width="60%"}
 ![](../results/04_Combined histogram-1.png){width="60%"}
+=======
+![](../results/04_Combined%20density%20plot-1.png) ![](../results/04_Combined%20histogram-1.png)
+>>>>>>> d30bc4c50278f065fad46d22d0941d85c5ba00b4
 :::
 :::::
 
@@ -137,19 +141,26 @@ Per gene:
 
 ------------------------------------------------------------------------
 
-## Results - Correlation Matrix
+## Results - Correlation Matrix {.smaller}
 
-::: center
-![](../results/07_heatmap-1.png)
+::::: columns
+
+::: column
+![](../results/07_heatmap-1.png){fig-align="center" width="1500"}
 :::
 
-22 Strong positive correlations (above 0.6)
+::: column
+-   22 strong positive correlations \
+    (above 0.6)
 
--   SFRP4 and ILR2
+    -   SFRP4 and IL2R
 
-8 Strong negative correlations (below -0.6)
+-   8 strong negative correlations \
+    (below –0.6)
 
--   IL1RL1 and RASGRP1
+    -   IL1RL1 and RASGRP1
+:::
+:::::
 
 ------------------------------------------------------------------------
 
