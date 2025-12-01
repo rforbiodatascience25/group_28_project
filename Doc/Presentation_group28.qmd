@@ -9,12 +9,11 @@ format:
 editor: visual
 ---
 
-## Introduction {.smaller}
+## Introduction{.smaller}
 
 **Type 2 Diabetes (T2D)** is a serious health concern. Identifying and understanding gene expression patterns associated with the disease can help uncover underlying biological mechanisms and could potentially support earlier detection.
 
-**\
-Our analysis is focused on:**
+**Our analysis is focused on:**
 
 -   Identifying gene expression markers
 
@@ -22,8 +21,7 @@ Our analysis is focused on:**
 
 -   Looking into co-expression of key genes
 
-**\
-Data source:**
+**Data source:**
 
 *"A Systems Genetics Approach Identifies Genes and Pathways for Type 2 Diabetes in Human Islets"* *(PMID: [22768844](https://www.ncbi.nlm.nih.gov/pubmed/22768844 "Link to PubMed record")) (GEO ID: GDS4337)*
 
