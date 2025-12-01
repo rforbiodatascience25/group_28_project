@@ -141,8 +141,16 @@ Per gene:
 ## Results - combined / correlation matrix
 
 ::: center
-![](results/heatmap-1.png)
+![](results/07_heatmap-1.png)
 :::
+
+22 Strong positive correlations (above 0.6)
+
+SFRP4 and ILR2
+
+8 Strong negative correlations (below -0.6)
+
+IL1RL1 and RASGRP1
 
 ------------------------------------------------------------------------
 
