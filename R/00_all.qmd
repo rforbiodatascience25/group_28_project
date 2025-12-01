@@ -23,7 +23,8 @@ source("99_proj_func.R") # Import helper functions
 
 
 qmd_files <- c(                 
-  "06_pval_analysis.qmd",
+  "01_load_data.qmd", 
+  "02_clean_data.qmd",
   "07_correlations.qmd"
   )
 

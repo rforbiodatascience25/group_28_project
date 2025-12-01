@@ -56,17 +56,23 @@ render_qmd <- function(qmd_file,
   
   # recursive run 
   if (length(qmd_file) > 1) {
-    lapply(qmd_file,
-           render_qmd,
-           output_path = output_path,
-           output_format = output_format)
+    purrr::walk(
+      qmd_file,
+      render_qmd,
+      output_path   = output_path,
+      output_format = output_format
+    )
     return(invisible())
   }
   
   # Preparation
   #-------------
   # .png files before render 
-  png_list_before <- list.files(output_path, pattern = "\\.png$", full.names = TRUE) 
+  png_list_before <- list.files(
+    output_path,
+    pattern    = "\\.png$",
+    full.names = TRUE
+  )
   
   # check result/ exist
   dir.create(file.path("..", "results"),  recursive = TRUE, showWarnings = FALSE)
@@ -77,11 +83,17 @@ render_qmd <- function(qmd_file,
   all_paths <- list.files(".", full.names = TRUE, recursive = FALSE) 
   
   # identify mis-renders (prefix and suffix conditions)
-  is_render_file <- grepl("^[0-9]{2}_.+\\.(pdf|html|rmarkdown)$",basename(all_paths))
+  is_render_file <- stringr::str_detect(
+    basename(all_paths),
+    "^[0-9]{2}_.+\\.(pdf|html|rmarkdown)$"
+  )
   delete_file_paths <- all_paths[is_render_file]
   
   is_folder <- file.info(all_paths)$isdir                           
-  is_render_folder <- grepl("^[0-9]{2}_.+_files$", basename(all_paths)) 
+  is_render_folder <- stringr::str_detect(
+    basename(all_paths),
+    "^[0-9]{2}_.+_files$"
+  )
   delete_folder_paths <- all_paths[is_folder & is_render_folder]
   
   #number of files and folders for deletion
@@ -96,12 +108,12 @@ render_qmd <- function(qmd_file,
         "\n",sep = "")
     if (n_delete_file_paths > 0){
       cat("Files deleted:", "\n",
-          paste(" -", basename(delete_file_paths), collapse = "\n"), "\n",
-          "\n",sep = "")
+          stringr::str_c(" -", basename(delete_file_paths), collapse = "\n"), "\n",
+          "\n", sep = "")
     }
     if (n_delete_folder_paths > 0) {
       cat("Folders deleted:", "\n",
-          paste(" -", basename(delete_folder_paths), collapse = "\n"), "\n",
+          stringr::str_c(" -", basename(delete_folder_paths), collapse = "\n"), "\n",
           sep = "")
     }
   }
@@ -115,7 +127,11 @@ render_qmd <- function(qmd_file,
   )
   
   # move render to output path
-  html_name <- sub("\\.qmd$", paste0(".",output_format), qmd_file)
+  html_name <- stringr::str_replace(
+    qmd_file,
+    "\\.qmd$",
+    stringr::str_c(".", output_format)
+  )
   
   file.rename(
     from = html_name,
@@ -125,14 +141,23 @@ render_qmd <- function(qmd_file,
   #add number prefix to png 
   #-------------------------
   # new png files list
-  png_list_after <- list.files(output_path, pattern = "\\.png$", full.names = TRUE) 
+  png_list_after <- list.files(
+    output_path,
+    pattern    = "\\.png$",
+    full.names = TRUE
+  )
   png_list_diff  <- setdiff(png_list_after, png_list_before)
   
   #extract prefix
-  qmd_prefix <- sub("_.*$", "", basename(qmd_file))  
+  qmd_prefix <- stringr::str_remove(
+    basename(qmd_file),
+    "_.*$"
+  )
   
   #create png base name with prefix
-  Base_prefix_png_list_diff <- paste0(qmd_prefix, "_", basename(png_list_diff))
+  Base_prefix_png_list_diff <- stringr::str_c(
+    qmd_prefix, "_", basename(png_list_diff)
+  )
   prefix_png_list_diff <- png_list_diff |>
     dirname() |>
     file.path(Base_prefix_png_list_diff)
@@ -149,14 +174,17 @@ render_qmd <- function(qmd_file,
   #----------------------------
   
   # check for unnamed png files 
-  unnamed_idx  <- grepl("^[0-9]{2}_+unnamed-chunk", basename(prefix_png_list_diff))
+  unnamed_idx  <- stringr::str_detect(
+    basename(prefix_png_list_diff),
+    "^[0-9]{2}_+unnamed-chunk"
+  )
   unnamed_pngs <- prefix_png_list_diff[unnamed_idx]
   
   # print png name status
   if (length(unnamed_pngs) > 0) {
     cat(length(unnamed_pngs), " unnamed file(s) detected\n\n",
         ".png files:\n",
-        paste(" -", basename(unnamed_pngs), collapse = "\n"), "\n\n",
+        stringr::str_c(" -", basename(unnamed_pngs), collapse = "\n"), "\n\n",
         "Created from .qmd document:\n",
         " - ", qmd_file, "\n\n",
         "Remember to name labels on ALL chunks with '#| label: ...'\n",
