@@ -153,7 +153,7 @@ Per gene:
 -   22 strong positive correlations \
     (above 0.6)
 
-    -   SFRP4 and IL2R
+    -   SFRP4 and IL7R
 
 -   8 strong negative correlations \
     (below –0.6)
