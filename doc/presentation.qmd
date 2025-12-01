@@ -53,7 +53,7 @@ editor: visual
 :::
 
 ::: column
-![](images/combined_density_plot.png) ![](images/combined_histogram.png)
+![](../results/04_Combined density plot-1.png) ![](../results/04_Combined histogram-1.png)
 :::
 :::::
 
@@ -108,11 +108,11 @@ editor: visual
 
 ::::: columns
 ::: column
-![](images/Expression_median_plot-1.png)
+![](../results/05_Expression_median_plot-1.png)
 :::
 
 ::: {.column width="60%" style="font-size: 60%;"}
-![](images/Expression_median_boxplot-1-01.png)
+![](../results/05_Expression_median_boxplot-1.png)
 
 Per gene:
 
@@ -132,14 +132,14 @@ Per gene:
 
 -   Top 30 most significant (lowest p-vals) chosen for visualisation
 
-![](images/06_over_under_expression_plot-1.png){fig-align="center"}
+![](../results/06_over_under_expression_plot-1.png){fig-align="center"}
 
 ------------------------------------------------------------------------
 
 ## Results - Correlation Matrix
 
 ::: center
-![](images/heatmap-1.png)
+![](../results/07_heatmap-1.png)
 :::
 
 22 Strong positive correlations (above 0.6)
