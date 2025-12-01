@@ -19,11 +19,12 @@ source("99_proj_func.R") # Import helper functions
 
 # list of files to run/render in /R
 # Write the files in the list you want to render
+# REMEMBER: add .qmd to the filename
 
 
 qmd_files <- c(                 
-  "01_load_data.qmd",
-  "02_clean_data.qmd"
+  "06_pval_analysis.qmd",
+  "07_correlations.qmd"
   )
 
 #Run/render

@@ -61,7 +61,7 @@ editor: visual
 
 ## Materials - Wrangling
 
-Frederik
+![](../results/wrangle.png)
 
 ------------------------------------------------------------------------
 
