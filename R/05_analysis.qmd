@@ -101,10 +101,9 @@ ggplot(top_30_plot, aes(x = reorder(gene_label, median_difference),
   theme_minimal()
 ```
 
-
 ### Expression Distribution of Top 10 Genes
 
-To visualize how individual sample expression levels vary within each group, we create boxplots for the top 10 genes with the largest median differences. 
+To visualize how individual sample expression levels vary within each group, we create boxplots for the top 10 genes with the largest median differences.
 
 ```{r}
 #| label: 05_Expression_median_boxplot
@@ -134,5 +133,3 @@ ggplot(plot_data, aes(x = IDENTIFIER, y = expression, fill = group)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate gene names if they overlap
 ```
-
-

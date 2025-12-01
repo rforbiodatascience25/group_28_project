@@ -125,7 +125,7 @@ t2d_estimates_selected |>
 ```
 
 ```{r}
-#| label: Build final plot
+#| label: over_under_expression_plot
 over_under_expression_plot <- t2d_estimates_selected |> 
   slice_head(n = 30) |>
   subset(is.significant == "yes") |>
@@ -154,9 +154,4 @@ over_under_expression_plot <- t2d_estimates_selected |>
   theme(legend.position = "bottom")
 
 over_under_expression_plot
-```
-
-```{r}
-#| label: over_under_expression_plot
-ggsave("../results/06_over_under_expression_plot.png", over_under_expression_plot)
 ```
