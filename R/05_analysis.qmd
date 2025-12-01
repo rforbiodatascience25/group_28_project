@@ -60,7 +60,6 @@ expression_comparison <- df_T2D_medians |>
 
 top_diff_genes <- head(expression_comparison, 30)
 
-print("Top 30 differentially expressed genes (by sample medians):")
 print(top_diff_genes)
 ```
 
