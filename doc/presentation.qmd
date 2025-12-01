@@ -136,7 +136,7 @@ Per gene:
 
 ------------------------------------------------------------------------
 
-## Results - combined / correlation matrix
+## Results - Correlation Matrix
 
 ::: center
 ![](images/heatmap-1.png)
