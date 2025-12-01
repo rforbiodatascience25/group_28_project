@@ -96,8 +96,15 @@ Bolette
 ::: column
 ![](../results/05_Expression_median_plot-1.png){width="100%"}
 :::
-::: column
+::: {.column width="60%" style="font-size: 60%;"} 
 ![](../results/05_Expression_median_boxplot-1.png){width="100%"}
+
+Per gene:  
+
+- T2D: 9 samples  
+
+- Control: 54 samples
+
 :::
 ::::
 
