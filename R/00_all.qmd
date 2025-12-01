@@ -22,13 +22,12 @@ source("99_proj_func.R") # Import helper functions
 
 
 qmd_files <- c(                 
-  "01_load_data.qmd"
+  "01_load_data.qmd",
+  "02_clean_data.qmd"
   )
 
 #Run/render
-qmd_files |> 
-  lapply(render_qmd) |> 
-  invisible()
+render_qmd(qmd_files)
 ```
 
 ## ALL "/R" scripts
@@ -43,16 +42,9 @@ not_run_qmd_files <- c(
   "99_proj_func.R"
 )
 
-#list of files in /R for rendering
+#files for rendering
 all_qmd_files <- list.files(path = ".", full.names = FALSE) |> 
   setdiff(not_run_qmd_files)
 
-#run and render
-all_qmd_files |> 
-  lapply(render_qmd) |> 
-  invisible()
-```
-
-```{r}
-save_qmd_objects("03_aug_data.qmd")
+render_qmd(all_qmd_files)
 ```

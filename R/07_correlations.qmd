@@ -5,7 +5,7 @@ format:
     embed-resources: true
 knitr:
   opts_chunk:
-    dev: "svg"
+    dev: "ragg_png"
     fig.path: "../results/"
 editor: visual
 ---
